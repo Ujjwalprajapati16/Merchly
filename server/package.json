@@ -1,0 +1,27 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Merchly is a modern and dynamic e-commerce platform built for selling high-quality merchandise with style and simplicity. Designed with a focus on user experience, scalability, and performance, Merchly makes browsing, discovering, and purchasing your favorite merch effortless and enjoyable.",
+  "keywords": [
+    "Merch",
+    "E-Commerce",
+    "Typescript",
+    "Nodejs",
+    "Express"
+  ],
+  "homepage": "https://github.com/Ujjwalprajapati16/Merchly#readme",
+  "bugs": {
+    "url": "https://github.com/Ujjwalprajapati16/Merchly/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ujjwalprajapati16/Merchly.git"
+  },
+  "license": "ISC",
+  "author": "Ujjwal Prajapati",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
