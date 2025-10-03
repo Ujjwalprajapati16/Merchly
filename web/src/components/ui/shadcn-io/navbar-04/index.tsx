@@ -1,102 +1,67 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useEffect, useState, useRef, useId } from 'react';
-import { SearchIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import * as React from "react";
+import { useEffect, useState, useRef, useId } from "react";
+import { SearchIcon, Sun, Moon } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-} from '@/components/ui/navigation-menu';
+} from "@/components/ui/navigation-menu";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import Image from 'next/image.js';
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import Logo from "@/components/Logo";
 
-const Logo = () => {
-  return <Image src="/logo.png" alt="Logo" width={150} height={150} />
-}
-
-// Hamburger icon component
-const HamburgerIcon = ({ className, ...props }: React.SVGAttributes<SVGElement>) => (
+const HamburgerIcon = ({ className }: { className?: string }) => (
   <svg
-    className={cn('pointer-events-none', className)}
-    width={16}
-    height={16}
+    className={cn("pointer-events-none", className)}
+    width={20}
+    height={20}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
   >
-    <path
-      d="M4 12L20 12"
-      className="origin-center -translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-x-0 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[315deg]"
-    />
-    <path
-      d="M4 12H20"
-      className="origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] group-aria-expanded:rotate-45"
-    />
-    <path
-      d="M4 12H20"
-      className="origin-center translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[135deg]"
-    />
+    <line x1="4" y1="6" x2="20" y2="6" />
+    <line x1="4" y1="12" x2="20" y2="12" />
+    <line x1="4" y1="18" x2="20" y2="18" />
   </svg>
 );
 
-// Types
 export interface Navbar04NavItem {
-  href?: string;
+  href: string;
   label: string;
 }
 
 export interface Navbar04Props extends React.HTMLAttributes<HTMLElement> {
-  logo?: React.ReactNode;
-  logoHref?: string;
   navigationLinks?: Navbar04NavItem[];
-  signInText?: string;
-  signInHref?: string;
-  cartText?: string;
-  cartHref?: string;
   cartCount?: number;
-  searchPlaceholder?: string;
-  onSignInClick?: () => void;
-  onCartClick?: () => void;
-  onSearchSubmit?: (query: string) => void;
 }
 
-// Default navigation links
 const defaultNavigationLinks: Navbar04NavItem[] = [
-  { href: '/products', label: 'Products' },
-  { href: '/categories', label: 'Categories' },
-  { href: '/deals', label: 'Deals' },
+  { href: "/products", label: "Products" },
+  { href: "/categories", label: "Categories" },
+  { href: "/deals", label: "Deals" },
 ];
 
 export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
   (
     {
       className,
-      logo = <Logo />,
-      logoHref = '#',
       navigationLinks = defaultNavigationLinks,
-      signInText = 'Sign In',
-      signInHref = '/signin',
-      cartText = 'Cart',
-      cartHref = '/cart',
       cartCount = 2,
-      searchPlaceholder = 'Search...',
-      onSignInClick,
-      onCartClick,
-      onSearchSubmit,
       ...props
     },
     ref
@@ -104,208 +69,153 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
     const [isMobile, setIsMobile] = useState(false);
     const containerRef = useRef<HTMLElement>(null);
     const searchId = useId();
+    const { theme, setTheme } = useTheme();
 
     useEffect(() => {
-      const checkWidth = () => {
+      const handleResize = () => {
         if (containerRef.current) {
-          const width = containerRef.current.offsetWidth;
-          setIsMobile(width < 768); // 768px is md breakpoint
+          setIsMobile(window.innerWidth < 768);
         }
       };
-
-      checkWidth();
-
-      const resizeObserver = new ResizeObserver(checkWidth);
-      if (containerRef.current) {
-        resizeObserver.observe(containerRef.current);
-      }
-
-      return () => {
-        resizeObserver.disconnect();
-      };
+      handleResize();
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Combine refs
-    const combinedRef = React.useCallback((node: HTMLElement | null) => {
-      containerRef.current = node;
-      if (typeof ref === 'function') {
-        ref(node);
-      } else if (ref) {
-        ref.current = node;
-      }
-    }, [ref]);
+    const combinedRef = React.useCallback(
+      (node: HTMLElement | null) => {
+        containerRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref) ref.current = node;
+      },
+      [ref]
+    );
 
     const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
-      const query = formData.get('search') as string;
-      if (onSearchSubmit) {
-        onSearchSubmit(query);
-      }
+      const query = formData.get("search") as string;
+      console.log("Search query:", query);
     };
 
     return (
       <header
         ref={combinedRef}
         className={cn(
-          'sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6 [&_*]:no-underline',
+          "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
           className
         )}
         {...props}
       >
-        <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-4">
-          {/* Left side */}
-          <div className="flex flex-1 items-center gap-2">
-            {/* Mobile menu trigger */}
+        <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
+          {/* Logo */}
+          <Logo />
+
+          {/* Desktop Nav */}
+          {!isMobile && (
+            <NavigationMenu>
+              <NavigationMenuList className="flex gap-6">
+                {navigationLinks.map((link, index) => (
+                  <NavigationMenuItem key={index}>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href={link.href}
+                        className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          )}
+
+          {/* Search */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="relative hidden md:block"
+          >
+            <Input
+              id={searchId}
+              name="search"
+              className="h-9 ps-8 pe-2 w-56"
+              placeholder="Search..."
+              type="search"
+            />
+            <div className="absolute inset-y-0 start-0 flex items-center ps-2 text-muted-foreground">
+              <SearchIcon size={16} />
+            </div>
+          </form>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-2">
+            <Link href="/login">
+              <Button variant="ghost" size="sm">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/cart">
+              <Button size="sm" className="relative">
+                Cart
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 rounded-full bg-primary text-white text-xs w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
+            {/* Theme Switch */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            >
+              {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+            </Button>
+
+            {/* Mobile Menu */}
             {isMobile && (
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    className="group h-9 w-9 hover:bg-accent hover:text-accent-foreground"
-                    variant="ghost"
-                    size="icon"
-                  >
+                  <Button variant="ghost" size="icon">
                     <HamburgerIcon />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent align="start" className="w-64 p-1">
-                  <NavigationMenu className="max-w-none">
-                    <NavigationMenuList className="flex-col items-start gap-0">
-                      {navigationLinks.map((link, index) => (
-                        <NavigationMenuItem key={index} className="w-full">
-                          <button
-                            onClick={(e) => e.preventDefault()}
-                            className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer no-underline"
-                          >
-                            {link.label}
-                          </button>
-                        </NavigationMenuItem>
-                      ))}
-                      <NavigationMenuItem
-                        className="w-full"
-                        role="presentation"
-                        aria-hidden={true}
+                <PopoverContent align="end" className="w-48 p-2">
+                  <nav className="flex flex-col gap-2">
+                    {navigationLinks.map((link, index) => (
+                      <Link
+                        key={index}
+                        href={link.href}
+                        className="text-sm font-medium hover:text-primary transition"
                       >
-                        <div
-                          role="separator"
-                          aria-orientation="horizontal"
-                          className="bg-border -mx-1 my-1 h-px"
-                        />
-                      </NavigationMenuItem>
-                      <NavigationMenuItem className="w-full">
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (onSignInClick) onSignInClick();
-                          }}
-                          className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer no-underline"
-                        >
-                          {signInText}
-                        </button>
-                      </NavigationMenuItem>
-                      <NavigationMenuItem className="w-full">
-                        <Button
-                          size="sm"
-                          className="mt-0.5 w-full text-left text-sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (onCartClick) onCartClick();
-                          }}
-                        >
-                          <span className="flex items-baseline gap-2">
-                            {cartText}
-                            <span className="text-primary-foreground/60 text-xs">
-                              {cartCount}
-                            </span>
-                          </span>
-                        </Button>
-                      </NavigationMenuItem>
-                    </NavigationMenuList>
-                  </NavigationMenu>
+                        {link.label}
+                      </Link>
+                    ))}
+                    <Link
+                      href="/login"
+                      className="text-sm font-medium hover:text-primary transition"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/cart"
+                      className="text-sm font-medium hover:text-primary transition"
+                    >
+                      Cart ({cartCount})
+                    </Link>
+                  </nav>
                 </PopoverContent>
               </Popover>
             )}
-            {/* Main nav */}
-            <div className="flex flex-1 items-center gap-6 max-md:justify-between">
-              <button
-                onClick={(e) => e.preventDefault()}
-                className="flex items-center space-x-2 text-primary hover:text-primary/90 transition-colors cursor-pointer"
-              >
-                <div className="text-2xl">
-                  {logo}
-                </div>
-                {/* <span className="hidden font-bold text-xl sm:inline-block">shadcn.io</span> */}
-              </button>
-              {/* Navigation menu */}
-              {!isMobile && (
-                <NavigationMenu className="flex">
-                  <NavigationMenuList className="gap-1">
-                    {navigationLinks.map((link, index) => (
-                      <NavigationMenuItem key={index}>
-                        <NavigationMenuLink
-                          href={link.href}
-                          onClick={(e) => e.preventDefault()}
-                          className="text-muted-foreground hover:text-primary py-1.5 font-medium transition-colors cursor-pointer group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
-                        >
-                          {link.label}
-                        </NavigationMenuLink>
-                      </NavigationMenuItem>
-                    ))}
-                  </NavigationMenuList>
-                </NavigationMenu>
-              )}
-              {/* Search form */}
-              <form onSubmit={handleSearchSubmit} className="relative">
-                <Input
-                  id={searchId}
-                  name="search"
-                  className="peer h-8 ps-8 pe-2"
-                  placeholder={searchPlaceholder}
-                  type="search"
-                />
-                <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-2 peer-disabled:opacity-50">
-                  <SearchIcon size={16} />
-                </div>
-              </form>
-            </div>
           </div>
-          {/* Right side */}
-          {!isMobile && (
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (onSignInClick) onSignInClick();
-                }}
-              >
-                {signInText}
-              </Button>
-              <Button
-                size="sm"
-                className="text-sm font-medium px-4 h-9 rounded-md shadow-sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (onCartClick) onCartClick();
-                }}
-              >
-                <span className="flex items-baseline gap-2">
-                  {cartText}
-                  <span className="text-primary-foreground/60 text-xs">
-                    {cartCount}
-                  </span>
-                </span>
-              </Button>
-            </div>
-          )}
         </div>
       </header>
     );
   }
 );
 
-Navbar04.displayName = 'Navbar04';
-
-export { Logo, HamburgerIcon };
+Navbar04.displayName = "Navbar04";
+export default Navbar04;

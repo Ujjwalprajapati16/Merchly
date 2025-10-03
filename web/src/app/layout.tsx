@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { QueryProvider } from "@/providers/QueryProvider";
 import Navbar from "@/components/Navbar";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -35,10 +36,12 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
       >
         <QueryProvider>
-          <Navbar />
-          {children}
+          <ThemeProvider attribute="class" defaultTheme="system" value={{ light: "light", dark: "dark" }}>
+            <Navbar />
+            {children}
+          </ThemeProvider>
         </QueryProvider>
       </body>
-    </html>
+    </html >
   );
 }

@@ -3,6 +3,7 @@ import { Shirt } from "lucide-react"
 import { LoginForm } from "@/app/(auth)/login/components/login-form"
 import Image from "next/image.js"
 import Link from "next/link.js"
+import Logo from "@/components/Logo"
 
 export default function LoginPage() {
   return (
@@ -13,12 +14,7 @@ export default function LoginPage() {
             <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
               <Shirt className="size-4" />
             </div>
-            <Image
-              src={"/logo.png"}
-              alt="Logo"
-              width={100}
-              height={100}
-            />
+            <Logo width={120} height={120}/>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
