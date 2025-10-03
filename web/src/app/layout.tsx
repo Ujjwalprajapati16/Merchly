@@ -31,12 +31,12 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} antialiased`}
       >
         <QueryProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" value={{ light: "light", dark: "dark" }}>
+          <ThemeProvider attribute="class" defaultTheme="system" value={{ light: "light", dark: "dark" }} enableSystem>
             <Navbar />
             {children}
           </ThemeProvider>
