@@ -4,6 +4,7 @@ import './globals.css';
 import { QueryProvider } from "@/providers/QueryProvider";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/providers/theme-provider";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -39,6 +40,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="system" value={{ light: "light", dark: "dark" }} enableSystem>
             <Navbar />
             {children}
+            <Footer />
           </ThemeProvider>
         </QueryProvider>
       </body>
