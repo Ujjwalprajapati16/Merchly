@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/productTypes";
-import AddToCartButton from "./AddToCartButton";
+import AddToCartButton from "@/components/AddToCartButton";
 import { toast } from "sonner";
 
 

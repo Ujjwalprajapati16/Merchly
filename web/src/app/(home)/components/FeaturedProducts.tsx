@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FaShoppingCart } from "react-icons/fa";
-import Image from "next/image.js";
+import Image from "next/image";
+import Link from "next/link";
 import products from "@/_db/product.json"; 
+import AddToCartButton from "@/components/AddToCartButton";
 
 const FeaturedProducts = () => {
   // Sort products by ID descending (latest first) and take top 4
@@ -30,8 +30,9 @@ const FeaturedProducts = () => {
               transition={{ delay: i * 0.1, duration: 0.4 }}
               viewport={{ once: true }}
             >
-              <Card className="group relative overflow-hidden border border-border/40 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer">
-                <div className="flex items-center justify-center w-full h-56 bg-muted/10 rounded-t-2xl mb-4 overflow-hidden">
+              <Card className="group relative overflow-hidden border border-border/40 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300">
+                {/* Link wraps the image and badge, so clicking redirects */}
+                <Link href={`/products/${product.slug}`} className="relative flex items-center justify-center w-full h-56 bg-muted/10 rounded-t-2xl mb-4 overflow-hidden">
                   <Image
                     src={Array.isArray(product.image) ? product.image[0] : product.image}
                     alt={product.name}
@@ -44,14 +45,13 @@ const FeaturedProducts = () => {
                       {product.badge}
                     </span>
                   )}
-                </div>
+                </Link>
 
                 <CardContent className="p-6 flex flex-col items-center text-center space-y-2">
                   <h3 className="font-medium text-lg">{product.name}</h3>
                   <p className="text-sm text-muted-foreground">{product.price}</p>
-                  <Button variant="outline" className="flex items-center gap-2 text-sm mt-2">
-                    <FaShoppingCart className="w-4 h-4" /> Add to cart
-                  </Button>
+                  {/* AddToCartButton stays independent */}
+                  <AddToCartButton />
                 </CardContent>
               </Card>
             </motion.div>
