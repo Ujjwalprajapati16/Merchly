@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import products from "../_db/product.json";
+import products from "@/_db/product.json";
 import ProductCarousel from "./components/ProductCarousel";
 import ProductInfo from "./components/ProductInfo";
 

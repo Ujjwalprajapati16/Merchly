@@ -2,48 +2,38 @@
 
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { FaTshirt, FaHatCowboy, FaMugHot, FaClipboard, FaShoppingBag } from "react-icons/fa";
+import products from "@/_db/product.json";
+import {
+  FaTshirt,
+  FaHatCowboy,
+  FaMugHot,
+  FaClipboard,
+  FaShoppingBag,
+} from "react-icons/fa";
+import Link from "next/link";
+import { JSX } from "react";
 
-const categories = [
-  {
-    id: 1,
-    name: "T-Shirts",
-    icon: <FaTshirt className="w-6 h-6 text-primary" />,
-    description: "Soft, comfortable, and stylish tees for every occasion.",
-  },
-  {
-    id: 2,
-    name: "Hoodies",
-    icon: <FaTshirt className="w-6 h-6 text-primary" />,
-    description: "Cozy hoodies to keep you warm and trendy all year.",
-  },
-  {
-    id: 3,
-    name: "Caps",
-    icon: <FaHatCowboy className="w-6 h-6 text-primary" />,
-    description: "Classic caps to complete your casual look.",
-  },
-  {
-    id: 4,
-    name: "Mugs",
-    icon: <FaMugHot className="w-6 h-6 text-primary" />,
-    description: "Personalized mugs perfect for coffee lovers.",
-  },
-  {
-    id: 5,
-    name: "Posters",
-    icon: <FaClipboard className="w-6 h-6 text-primary" />,
-    description: "High-quality posters to decorate your space.",
-  },
-  {
-    id: 6,
-    name: "Bags",
-    icon: <FaShoppingBag className="w-6 h-6 text-primary" />,
-    description: "Durable and stylish bags for everyday use.",
-  },
-];
+// Map category names to icons
+const categoryIcons: Record<string, JSX.Element> = {
+  "T-Shirts": <FaTshirt className="w-6 h-6 text-primary" />,
+  "Hoodies": <FaTshirt className="w-6 h-6 text-primary" />,
+  "Caps": <FaHatCowboy className="w-6 h-6 text-primary" />,
+  "Mugs": <FaMugHot className="w-6 h-6 text-primary" />,
+  "Posters": <FaClipboard className="w-6 h-6 text-primary" />,
+  "Bags": <FaShoppingBag className="w-6 h-6 text-primary" />,
+};
 
 const ProductCategories = () => {
+  // Generate unique categories dynamically
+  const categories = Array.from(new Set(products.map((p) => p.category))).map(
+    (cat) => ({
+      name: cat,
+      slug: cat.toLowerCase().replace(/\s+/g, "-"),
+      icon: categoryIcons[cat] || <FaClipboard className="w-6 h-6 text-primary" />,
+      description: `Explore our exclusive ${cat.toLowerCase()} collection.`,
+    })
+  );
+
   return (
     <section className="w-full py-16 px-6 bg-background">
       <div className="max-w-6xl mx-auto text-center">
@@ -55,21 +45,25 @@ const ProductCategories = () => {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((cat, i) => (
             <motion.div
-              key={cat.id}
+              key={cat.slug}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1, duration: 0.4 }}
               viewport={{ once: true }}
             >
-              <Card className="group relative overflow-hidden border border-border/40 hover:border-primary/50 transition-all duration-300 rounded-2xl hover:shadow-lg hover:shadow-primary/10">
-                <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
-                  <div className="w-14 h-14 flex items-center justify-center rounded-full bg-muted group-hover:bg-primary/10 transition-colors">
-                    {cat.icon}
-                  </div>
-                  <h3 className="text-lg font-medium">{cat.name}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{cat.description}</p>
-                </CardContent>
-              </Card>
+              <Link href={`/categories/${cat.slug}`}>
+                <Card className="group relative overflow-hidden border border-border/40 hover:border-primary/50 transition-all duration-300 rounded-2xl hover:shadow-lg hover:shadow-primary/10 cursor-pointer">
+                  <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
+                    <div className="w-14 h-14 flex items-center justify-center rounded-full bg-muted group-hover:bg-primary/10 transition-colors">
+                      {cat.icon}
+                    </div>
+                    <h3 className="text-lg font-medium">{cat.name}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {cat.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             </motion.div>
           ))}
         </div>

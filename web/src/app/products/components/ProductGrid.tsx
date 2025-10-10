@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import ProductCard from "./ProductCard";
+import ProductCard from "../../../components/ProductCard";
 import SortDropdown from "./SortDropdown";
 import { Product } from "@/types/productTypes.js";
 
