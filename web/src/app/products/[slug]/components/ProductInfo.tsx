@@ -19,7 +19,7 @@ const ProductInfo: React.FC<{ product: Product }> = ({ product }) => {
             </div>
 
             {product.badge && (
-                <span className="bg-primary text-white px-3 py-1 rounded-full text-sm">
+                <span className="bg-primary text-white px-3 py-1 rounded-full text-sm dark:bg-primary/80 dark:text-primary-foreground">
                     {product.badge}
                 </span>
             )}

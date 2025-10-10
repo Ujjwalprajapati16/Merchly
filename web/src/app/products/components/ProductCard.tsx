@@ -25,7 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           />
 
           {product.badge && (
-            <span className="absolute top-3 right-3 bg-primary text-white text-xs px-2 py-1 rounded-full">
+            <span className="absolute top-3 right-3 bg-primary text-white text-xs px-2 py-1 rounded-full dark:bg-primary/80 dark:text-primary-foreground">
               {product.badge}
             </span>
           )}
