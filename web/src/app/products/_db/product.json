@@ -2,111 +2,126 @@
   {
     "id": 1,
     "name": "Classic T-Shirt",
+    "slug": "classic-t-shirt",
     "price": "$25",
     "category": "T-Shirts",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg",
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"],
     "badge": "New"
   },
   {
     "id": 2,
     "name": "Graphic Hoodie",
+    "slug": "graphic-hoodie",
     "price": "$45",
     "category": "Hoodies",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg",
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"],
     "badge": "Sale"
   },
   {
     "id": 3,
     "name": "Baseball Cap",
+    "slug": "baseball-cap",
     "price": "$20",
     "category": "Caps",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 4,
     "name": "Logo Mug",
+    "slug": "logo-mug",
     "price": "$15",
     "category": "Mugs",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 5,
     "name": "Canvas Tote Bag",
+    "slug": "canvas-tote-bag",
     "price": "$30",
     "category": "Bags",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 6,
     "name": "Streetwear Hoodie",
+    "slug": "streetwear-hoodie",
     "price": "$50",
     "category": "Hoodies",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg",
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"],
     "badge": "New"
   },
   {
     "id": 7,
     "name": "Premium T-Shirt",
+    "slug": "premium-t-shirt",
     "price": "$35",
     "category": "T-Shirts",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 8,
     "name": "Snapback Cap",
+    "slug": "snapback-cap",
     "price": "$22",
     "category": "Caps",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 9,
     "name": "Ceramic Coffee Mug",
+    "slug": "ceramic-coffee-mug",
     "price": "$18",
     "category": "Mugs",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg",
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"],
     "badge": "Sale"
   },
   {
     "id": 10,
     "name": "Eco-Friendly Tote",
+    "slug": "eco-friendly-tote",
     "price": "$28",
     "category": "Bags",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 11,
     "name": "Oversized Hoodie",
+    "slug": "oversized-hoodie",
     "price": "$55",
     "category": "Hoodies",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 12,
     "name": "V-Neck T-Shirt",
+    "slug": "v-neck-t-shirt",
     "price": "$27",
     "category": "T-Shirts",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 13,
     "name": "Dad Cap",
+    "slug": "dad-cap",
     "price": "$18",
     "category": "Caps",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 14,
     "name": "Travel Mug",
+    "slug": "travel-mug",
     "price": "$20",
     "category": "Mugs",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"]
   },
   {
     "id": 15,
     "name": "Mini Backpack",
+    "slug": "mini-backpack",
     "price": "$40",
     "category": "Bags",
-    "image": "https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg",
+    "image": ["https://res.cloudinary.com/dpodyegcn/image/upload/v1757846529/cld-sample-5.jpg"],
     "badge": "New"
   }
 ]

@@ -3,14 +3,7 @@
 import { useState } from "react";
 import ProductCard from "./ProductCard";
 import SortDropdown from "./SortDropdown";
-
-interface Product {
-    id: number;
-    name: string;
-    price: string;
-    image?: string;
-    badge?: string;
-}
+import { Product } from "@/types/productTypes.js";
 
 interface ProductGridProps {
     products: Product[];
