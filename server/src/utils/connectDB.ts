@@ -1,32 +1,35 @@
-import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 import config from "../config/config.ts";
 
-let client: MongoClient | null = null;
-let dbInstance: any = null;
-
-export const connectDB = async () => {
+export const connectDB = async (): Promise<typeof mongoose> => {
   try {
-    if (dbInstance) {
-      console.log("✅ Already connected to MongoDB");
-      return dbInstance;
-    }
-
     const uri = config.mongo_uri;
+
     if (!uri) {
-      throw new Error("MONGO_URI is not defined");
+      throw new Error("❌ MONGO_URI is not defined in config");
     }
 
-    client = new MongoClient(uri);
-    await client.connect();
+    // Prevent reconnect attempts if already connected
+    if (mongoose.connection.readyState === 1) {
+      console.log("✅ Already connected to MongoDB");
+      return mongoose;
+    }
 
-    dbInstance = client.db();
-    console.log("✅ Connected to MongoDB");
+    // Connect with recommended options
+    await mongoose.connect(uri);
+    console.log("✅ Connected to MongoDB successfully");
 
-    return dbInstance;
+    mongoose.connection.on("disconnected", () => {
+      console.warn("⚠️ MongoDB disconnected. Retrying...");
+    });
+
+    mongoose.connection.on("error", (err) => {
+      console.error("❌ MongoDB connection error:", err);
+    });
+
+    return mongoose;
   } catch (error) {
-    console.error("❌ Error connecting to MongoDB:", error);
+    console.error("❌ Failed to connect to MongoDB:", error);
     process.exit(1);
   }
 };
-
-export { client };

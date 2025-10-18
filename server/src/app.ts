@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import config from "./config/config.ts";
-import authRouter from "./routes/auth-route.ts";
-import { APIError, BadRequest, errorHandler, NotFound } from "./middlewares/ErrorHandler.ts";
+import authRouter from "./routes/auth-routes.ts";
+import { errorHandler } from "./middlewares/ErrorHandler.ts";
 
 const app = express();
 
@@ -17,11 +17,14 @@ app.use(
 
 app.use(express.json());
 
+// Routing
+app.use("/api/v1/auth", authRouter);
+
+// Root route
 app.use("/", (req, res) => {
   res.json({ message: "Server is running" });
 });
 
-app.use("/api/v1/auth", authRouter);
 
 // Error handler
 app.use(errorHandler);

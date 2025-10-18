@@ -4,9 +4,9 @@ dotenv.config();
 const _config = {
     port: process.env.PORT || 3000,
     mongo_uri: process.env.MONGO_URI as string,
-    jwt_secret: process.env.JWT_SECRET,
-    node_env: process.env.NODE_ENV,
-    client_url: process.env.CLIENT_URL
+    jwt_secret: process.env.JWT_SECRET as string,
+    node_env: process.env.NODE_ENV as string,
+    client_url: process.env.CLIENT_URL as string
 }
 
 const config = {
