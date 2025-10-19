@@ -4,5 +4,5 @@ import { connectDB } from "./utils/connectDB.ts";
 
 app.listen(config.port, () => {
     connectDB();
-    console.log(`Server running at http://localhost:3000`);
+    console.log(`Server running at http://localhost:${config.port}`);
 });
