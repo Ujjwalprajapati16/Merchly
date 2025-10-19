@@ -5,8 +5,8 @@ export const createAddress = async (address : address) => {
     return await Address.create(address);
 }
 
-export const getAddress = async (userId : string) => {
-    return await Address.find({user : userId});
+export const getAddresses = async (userId : string) => {
+    return await Address.find({user : userId}).lean();
 }
 
 export const getAddressById = async (id : string) => {

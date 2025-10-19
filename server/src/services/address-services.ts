@@ -1,5 +1,5 @@
 import { APIError } from "../middlewares/ErrorHandler.ts";
-import { createAddress } from "../repositories/address-repo.ts";
+import { createAddress, getAddresses } from "../repositories/address-repo.ts";
 import { getUserById } from "../repositories/user-repo.ts";
 import type { address } from "../types/Address-types.ts";
 import type { User } from "../types/User-types.ts";
@@ -29,4 +29,8 @@ export const addAddressService = async (userId : string, addressLine1 : string, 
     }
 
     return createdAddress;
+}
+
+export const getAddressService= async (userId : string) => {
+    return await getAddresses(userId);
 }
