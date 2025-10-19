@@ -1,12 +1,13 @@
 import express from "express";
 import { addAddress, deleteAddress, getAddress, getAddressById, updateAddress } from "../controllers/address-controller.ts";
+import { authenticate } from "../middlewares/AuthMiddleware.ts";
 
 const addressRouter = express.Router();
 
-addressRouter.post("/add", addAddress);
-addressRouter.get("/", getAddress);
-addressRouter.get("/:id", getAddressById);
-addressRouter.put("/:id", updateAddress);
-addressRouter.delete("/:id", deleteAddress);
+addressRouter.post("/add", authenticate, addAddress);
+addressRouter.get("/", authenticate, getAddress);
+addressRouter.get("/:id", authenticate, getAddressById);
+addressRouter.put("/:id", authenticate, updateAddress);
+addressRouter.delete("/:id", authenticate, deleteAddress);
 
 export default addressRouter;

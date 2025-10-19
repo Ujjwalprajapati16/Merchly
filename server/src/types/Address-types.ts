@@ -1,9 +1,11 @@
+import type { User } from "./User-types.ts"
+
 export type address = {
-    user: string,
+    user: User,
     addressLine1: string,
     addressLine2: string,
     city: string,
     state: string,
     country: string,
-    pincode: number
+    pincode: string
 }

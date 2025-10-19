@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import type { address } from "../types/Address-types.ts";
 
-const addressSchema = new mongoose.Schema({
+const addressSchema = new mongoose.Schema<address>({
     user : {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -26,13 +27,11 @@ const addressSchema = new mongoose.Schema({
         required: true,
     },
     pincode: {
-        type: Number,
+        type: String,
         required: true,
-        min: 100000,
-        max: 999999
     },
 }, {
     timestamps: true
 });
 
-export default mongoose.model("Address", addressSchema);
+export default mongoose.model<address>("Address", addressSchema);
