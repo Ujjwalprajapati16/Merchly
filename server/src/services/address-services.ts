@@ -1,5 +1,5 @@
-import { APIError, NotFound } from "../middlewares/ErrorHandler.ts";
-import { createAddress, getAddressById, getAddresses, updateAddress } from "../repositories/address-repo.ts";
+import { APIError, NotFound, Unauthorized } from "../middlewares/ErrorHandler.ts";
+import { createAddress, deleteAddress, getAddressById, getAddresses, updateAddress } from "../repositories/address-repo.ts";
 import { getUserById } from "../repositories/user-repo.ts";
 import type { address, UpdateAddressDTO } from "../types/Address-types.ts";
 import type { User } from "../types/User-types.ts";
@@ -48,3 +48,22 @@ export const updateAddressService = async (id: string, updateData: UpdateAddress
 
     return updatedAddress;
 };
+
+export const deleteAddressService = async (id: string, userId: string) => {
+    const address = await getAddressById(id);
+
+    if (!address) {
+        throw new NotFound("Address not found");
+    }
+
+    const addressUserId = address.user.toString(); 
+    if (addressUserId !== userId) {
+        throw new Unauthorized("You are not allowed to delete this address");
+    }
+
+    return await deleteAddress(id);
+}
+
+export const getAddressByIdService = async (id: string) => {
+    return await getAddressById(id);
+}

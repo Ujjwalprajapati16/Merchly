@@ -1,7 +1,7 @@
-import type { NextFunction, Request, Response } from "express";
+import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { BadRequest, Unauthorized } from "../middlewares/ErrorHandler.ts";
-import { addAddressService, getAddressService, updateAddressService } from "../services/address-services.ts";
+import { addAddressService, deleteAddressService, getAddressByIdService, getAddressService, updateAddressService } from "../services/address-services.ts";
 import type { UpdateAddressDTO } from "../types/Address-types.ts";
 
 export const addAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -44,20 +44,20 @@ export const getAddress = async (req: AuthRequest, res: Response, next: NextFunc
     }
 };
 
-export const updateAddress = async (req: AuthRequest, res: Response, next: NextFunction) => { 
+export const updateAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const { addressLine1, addressLine2, city, state, country, pincode } = req.body;
     const user = req.user;
 
-    if(!id){
+    if (!id) {
         throw new BadRequest("Id required to update address");
     }
 
-    if(!user){
+    if (!user) {
         throw new Unauthorized("Don't have access!!");
     }
 
-    const addressToUpdate : UpdateAddressDTO = {
+    const addressToUpdate: UpdateAddressDTO = {
         addressLine1,
         addressLine2,
         city,
@@ -75,6 +75,43 @@ export const updateAddress = async (req: AuthRequest, res: Response, next: NextF
     }
 }
 
-export const deleteAddress = async (req: Request, res: Response, next: NextFunction) => { }
+export const deleteAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const user = req.user;
 
-export const getAddressById = async (req: Request, res: Response, next: NextFunction) => { }
+    if (!id) {
+        throw new BadRequest("Id required to delete address");
+    }
+
+    if (!user) {
+        throw new Unauthorized("Don't have access!!");
+    }
+
+    try {
+        const result = await deleteAddressService(id, user.id);
+        return res.status(200).json({ message: "Address deleted successfully", result });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getAddressById = async (req: AuthRequest, res: Response, next: NextFunction) => { 
+    const { id } = req.params;
+
+    if (!id) {
+        throw new BadRequest("Id required to fetch address");
+    }
+
+    const user = req.user;
+
+    if (!user) {
+        throw new Unauthorized("Don't have access!!");
+    }
+
+    try {
+        const address = await getAddressByIdService(id);
+        return res.status(200).json({ message: "Address fetched successfully", address });
+    } catch (error) {
+        next(error);
+    }
+}
