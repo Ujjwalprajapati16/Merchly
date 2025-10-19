@@ -7,7 +7,7 @@ const addressRouter = express.Router();
 addressRouter.post("/add", authenticate, addAddress);
 addressRouter.get("/", authenticate, getAddress);
 addressRouter.get("/:id", authenticate, getAddressById);
-addressRouter.put("/:id", authenticate, updateAddress);
+addressRouter.patch("/:id", authenticate, updateAddress);
 addressRouter.delete("/:id", authenticate, deleteAddress);
 
 export default addressRouter;

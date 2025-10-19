@@ -1,7 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { BadRequest, Unauthorized } from "../middlewares/ErrorHandler.ts";
-import { addAddressService, getAddressService } from "../services/address-services.ts";
+import { addAddressService, getAddressService, updateAddressService } from "../services/address-services.ts";
+import type { UpdateAddressDTO } from "../types/Address-types.ts";
 
 export const addAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { addressLine1, addressLine2, city, state, country, pincode } = req.body;
@@ -43,7 +44,36 @@ export const getAddress = async (req: AuthRequest, res: Response, next: NextFunc
     }
 };
 
-export const updateAddress = async (req: Request, res: Response, next: NextFunction) => { }
+export const updateAddress = async (req: AuthRequest, res: Response, next: NextFunction) => { 
+    const { id } = req.params;
+    const { addressLine1, addressLine2, city, state, country, pincode } = req.body;
+    const user = req.user;
+
+    if(!id){
+        throw new BadRequest("Id required to update address");
+    }
+
+    if(!user){
+        throw new Unauthorized("Don't have access!!");
+    }
+
+    const addressToUpdate : UpdateAddressDTO = {
+        addressLine1,
+        addressLine2,
+        city,
+        state,
+        country,
+        pincode
+    }
+
+    try {
+        const updatedAddress = await updateAddressService(id, addressToUpdate);
+
+        return res.status(200).json({ message: "Address updated successfully", updatedAddress });
+    } catch (error) {
+        next(error);
+    }
+}
 
 export const deleteAddress = async (req: Request, res: Response, next: NextFunction) => { }
 
