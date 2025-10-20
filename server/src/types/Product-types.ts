@@ -13,3 +13,17 @@ export type Product = {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export type ProductToAdd = {
+    name: string;
+    price: number;
+    slug: string;
+    description: string;
+    variants: Variant[];
+}
+
+export type Variant = {
+    color: string;
+    size: string;
+    image: string;
+}
