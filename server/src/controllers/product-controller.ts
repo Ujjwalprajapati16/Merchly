@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { BadRequest } from "../middlewares/ErrorHandler.ts";
-import { addProductService, getCategoriesService, getProductsByCategoryService, getProductService, getProductsService } from "../services/product-services.ts";
+import { addProductService, getCategoriesService, getProductsByCategoryService, getProductService, getProductsService, updateProductService } from "../services/product-services.ts";
 import type { Variant } from "../types/Product-types.ts";
 
 export const addProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -107,6 +107,48 @@ export const getProductsByCategory = async (req: Request, res: Response, next: N
       limit,
       count: products.length,
       products,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const productId = req.params.id;
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const { name, price, description, category, variants } = req.body;
+
+    // Parse variants JSON if sent as string (multipart/form-data)
+    let parsedVariants;
+    if (variants) {
+      parsedVariants = typeof variants === "string" ? JSON.parse(variants) : variants;
+    }
+
+    // Handle uploaded images if any
+    const files = req.files as Express.Multer.File[] | undefined;
+    let variantsWithImages = parsedVariants;
+    if (files && files.length > 0 && parsedVariants) {
+      variantsWithImages = parsedVariants.map((v: any, index: number) => ({
+        ...v,
+        image: files[index]?.path || v.image, 
+      }));
+    }
+
+    const updatedProduct = await updateProductService(productId, {
+      name,
+      price,
+      description,
+      category,
+      variants: variantsWithImages,
+    });
+
+    res.status(200).json({
+      message: "Product updated successfully",
+      product: updatedProduct,
     });
   } catch (error) {
     next(error);

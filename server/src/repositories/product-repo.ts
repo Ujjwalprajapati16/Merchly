@@ -41,3 +41,14 @@ export const findProductsByCategory = async (
         .limit(limit)
         .lean();
 };
+
+export const updateProductById = async (
+  productId: string,
+  updateData: Partial<ProductToAdd>
+) => {
+  return await productModel.findByIdAndUpdate(productId, updateData, { new: true, runValidators: true }).lean();
+};
+
+export const findProductById = async (productId: string) => {
+  return await productModel.findById(productId).lean();
+};

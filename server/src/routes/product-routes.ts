@@ -1,5 +1,5 @@
 import express from "express";
-import { addProduct, getCategories, getProduct, getProducts, getProductsByCategory } from "../controllers/product-controller.ts";
+import { addProduct, getCategories, getProduct, getProducts, getProductsByCategory, updateProduct } from "../controllers/product-controller.ts";
 import { isAdmin } from "../middlewares/isAdmin.ts";
 import { authenticate } from "../middlewares/AuthMiddleware.ts";
 import { upload } from "../utils/multer.ts";
@@ -12,6 +12,14 @@ productRouter.post(
   isAdmin,
   upload.array("images", 10), 
   addProduct
+);
+
+productRouter.put(
+  "/update/:id",
+  authenticate,
+  isAdmin,
+  upload.array("images", 10), 
+  updateProduct
 );
 
 productRouter.get("/categories/:category", getProductsByCategory);

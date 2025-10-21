@@ -1,5 +1,5 @@
 import { APIError } from "../middlewares/ErrorHandler.ts";
-import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory } from "../repositories/product-repo.ts";
+import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory, updateProductById } from "../repositories/product-repo.ts";
 import type { Product, ProductToAdd, Variant } from "../types/Product-types.ts";
 
 export const addProductService = async (name: string, price: number, description: string, category: string, variants: Variant[]) => {
@@ -44,4 +44,26 @@ export const getProductsByCategoryService = async (
     const products = await findProductsByCategory(category, limit, skip);
 
     return products;
+};
+
+export const updateProductService = async (
+    productId: string,
+    data: {
+        name?: string;
+        price?: number;
+        description?: string;
+        category?: string;
+        slug?: string;
+        variants?: Variant[];
+    }
+) => {
+    if (data.name) {
+        data.slug = data.name.toLowerCase().replace(/\s+/g, "-");
+    }
+
+    const updatedProduct = await updateProductById(productId, data);
+
+    if (!updatedProduct) throw new Error("Product not found or failed to update");
+
+    return updatedProduct;
 };
