@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { BadRequest } from "../middlewares/ErrorHandler.ts";
-import { addProductService, getProductService, getProductsService } from "../services/product-services.ts";
+import { addProductService, getCategoriesService, getProductsByCategoryService, getProductService, getProductsService } from "../services/product-services.ts";
 import type { Variant } from "../types/Product-types.ts";
 
 export const addProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -73,3 +73,42 @@ export const getProduct = async (req: Request, res: Response, next: NextFunction
     next(error);
   }
 }
+
+export const getCategories = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const categories = await getCategoriesService();
+
+    res.status(200).json({
+      message: "Categories fetched successfully",
+      count: categories.length,
+      categories,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProductsByCategory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const category = req.params.category;
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
+
+    const limit = parseInt(req.query.limit as string) || 10;
+    const page = parseInt(req.query.page as string) || 1;
+
+    const products = await getProductsByCategoryService(category, limit, page);
+
+    res.status(200).json({
+      message: `Products in category "${category}" fetched successfully`,
+      category,
+      page,
+      limit,
+      count: products.length,
+      products,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

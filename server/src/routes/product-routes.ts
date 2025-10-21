@@ -1,5 +1,5 @@
 import express from "express";
-import { addProduct, getProduct, getProducts } from "../controllers/product-controller.ts";
+import { addProduct, getCategories, getProduct, getProducts, getProductsByCategory } from "../controllers/product-controller.ts";
 import { isAdmin } from "../middlewares/isAdmin.ts";
 import { authenticate } from "../middlewares/AuthMiddleware.ts";
 import { upload } from "../utils/multer.ts";
@@ -14,7 +14,9 @@ productRouter.post(
   addProduct
 );
 
-productRouter.get("/", getProducts);
+productRouter.get("/categories/:category", getProductsByCategory);
+productRouter.get("/categories", getCategories);
 productRouter.get("/:slug", getProduct);
+productRouter.get("/", getProducts);
 
 export default productRouter;

@@ -1,6 +1,6 @@
 import { APIError } from "../middlewares/ErrorHandler.ts";
-import { createProduct, getAllProducts, getProductBySlug } from "../repositories/product-repo.ts";
-import type { ProductToAdd, Variant } from "../types/Product-types.ts";
+import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory } from "../repositories/product-repo.ts";
+import type { Product, ProductToAdd, Variant } from "../types/Product-types.ts";
 
 export const addProductService = async (name: string, price: number, description: string, category: string, variants: Variant[]) => {
     const slug = name.toLowerCase().replace(/ /g, "-");
@@ -29,3 +29,19 @@ export const getProductsService = async (limit: number, page: number) => {
 export const getProductService = async (slug: string) => {
     return await getProductBySlug(slug);
 }
+
+export const getCategoriesService = async () => {
+    return await getCategories();
+};
+
+export const getProductsByCategoryService = async (
+    category: string,
+    limit: number,
+    page: number
+): Promise<Product[]> => {
+    const skip = (page - 1) * limit;
+
+    const products = await findProductsByCategory(category, limit, skip);
+
+    return products;
+};
