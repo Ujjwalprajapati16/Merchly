@@ -2,7 +2,7 @@ import { APIError } from "../middlewares/ErrorHandler.ts";
 import { createProduct, getAllProducts, getProductBySlug } from "../repositories/product-repo.ts";
 import type { ProductToAdd, Variant } from "../types/Product-types.ts";
 
-export const addProductService = async (name: string, price: number, description: string, variants: Variant[]) => {
+export const addProductService = async (name: string, price: number, description: string, category: string, variants: Variant[]) => {
     const slug = name.toLowerCase().replace(/ /g, "-");
 
     const product: ProductToAdd = {
@@ -10,6 +10,7 @@ export const addProductService = async (name: string, price: number, description
         price,
         slug,
         description,
+        category,
         variants
     };
 

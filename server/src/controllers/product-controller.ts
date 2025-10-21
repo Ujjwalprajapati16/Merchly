@@ -6,9 +6,9 @@ import type { Variant } from "../types/Product-types.ts";
 
 export const addProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { name, price, description, variants } = req.body;
+    const { name, price, description, variants, category } = req.body;
 
-    if (!name || !price || !description || !variants) {
+    if (!name || !price || !description || !variants || !category) {
       throw new BadRequest("Missing required fields");
     }
 
@@ -30,7 +30,7 @@ export const addProduct = async (req: AuthRequest, res: Response, next: NextFunc
       image: files[index]?.path || "", 
     }));
 
-    const product = await addProductService(name, price, description, variantsWithImages);
+    const product = await addProductService(name, price, description, category, variantsWithImages);
 
     res.status(201).json({
       message: "Product added successfully",

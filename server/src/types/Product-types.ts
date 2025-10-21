@@ -5,6 +5,7 @@ export type Product = {
     slug: string;
     description: string;
     status: string;
+    category: string;
     variants: {
         color: string;
         size: string;
@@ -19,6 +20,7 @@ export type ProductToAdd = {
     price: number;
     slug: string;
     description: string;
+    category: string;
     variants: Variant[];
 }
 
