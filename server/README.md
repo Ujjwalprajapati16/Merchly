@@ -14,7 +14,8 @@ Merchly Server is the backend API for the Merchly e-commerce platform, designed 
 - **RESTful API Design**: Clean and intuitive API endpoints following REST conventions
 - **Layered Architecture**: Separation of concerns with controllers, services, repositories, and models
 - **Address Management**: Complete CRUD operations for user address management
-- **Product Management**: Product catalog with variants, pagination, and admin controls
+- **Product Management**: Complete product CRUD with categories, variants, pagination, and admin controls
+- **Image Upload**: Cloudinary integration for product image storage and management
 - **CORS Support**: Cross-Origin Resource Sharing enabled for frontend integration
 - **Environment Configuration**: Secure configuration management with dotenv
 - **Comprehensive Error Handling**: Custom error classes with proper HTTP status codes
@@ -29,6 +30,8 @@ Merchly Server is the backend API for the Merchly e-commerce platform, designed 
 - **Database**: MongoDB with Mongoose ODM
 - **Authentication**: JWT (JSON Web Tokens)
 - **Password Hashing**: bcrypt
+- **File Storage**: Cloudinary (Image hosting and management)
+- **File Upload**: Multer with Cloudinary storage
 - **Tools**: Nodemon, ts-node
 
 ## 🛠️ Installation
@@ -66,6 +69,11 @@ Merchly Server is the backend API for the Merchly e-commerce platform, designed 
    NODE_ENV=development
    JWT_SECRET=your_super_secret_jwt_key
    CLIENT_URL=http://localhost:3000
+   
+   # Cloudinary Configuration (for image uploads)
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
    ```
 
 4. **Start MongoDB**
@@ -104,7 +112,8 @@ npm start
 server/
 ├── src/
 │   ├── config/
-│   │   └── config.ts          # Environment configuration
+│   │   ├── config.ts          # Environment configuration
+│   │   └── cloudinary.ts      # Cloudinary setup and configuration
 │   ├── controllers/           # Request handlers
 │   │   ├── auth-controller.ts # Authentication endpoints
 │   │   ├── address-controller.ts # Address management
@@ -136,7 +145,8 @@ server/
 │   │   ├── Product-types.ts   # Product-related types
 │   │   └── AuthRequest.ts     # Extended request type
 │   ├── utils/
-│   │   └── connectDB.ts       # MongoDB connection utility
+│   │   ├── connectDB.ts       # MongoDB connection utility
+│   │   └── multer.ts          # File upload configuration with Cloudinary
 │   ├── app.ts                 # Express app configuration
 │   └── server.ts              # Server entry point
 ├── .env.sample                # Environment variables template
@@ -411,16 +421,17 @@ GET /api/v1/product/?limit=10&page=1
       "price": 29.99,
       "description": "A stylish and comfortable t-shirt",
       "status": "active",
+      "category": "clothing",
       "variants": [
         {
           "color": "red",
           "size": "M",
-          "image": "https://example.com/red-m.jpg"
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg"
         },
         {
           "color": "blue",
           "size": "L",
-          "image": "https://example.com/blue-l.jpg"
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/blue-l.jpg"
         }
       ],
       "createdAt": "2024-01-15T10:30:00Z",
@@ -451,11 +462,12 @@ GET /api/v1/product/cool-t-shirt
     "price": 29.99,
     "description": "A stylish and comfortable t-shirt",
     "status": "active",
+    "category": "clothing",
     "variants": [
       {
         "color": "red",
         "size": "M",
-        "image": "https://example.com/red-m.jpg"
+        "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg"
       }
     ],
     "createdAt": "2024-01-15T10:30:00Z",
@@ -464,39 +476,99 @@ GET /api/v1/product/cool-t-shirt
 }
 ```
 
-### Add Product (Admin Only)
-**POST** `/api/v1/product/add`
+### Get All Categories
+**GET** `/api/v1/product/categories`
 
-Add a new product. Requires admin privileges.
+Retrieve all available product categories.
 
-**Headers:**
-```
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-```
-
-**Request Body:**
+**Response (200):**
 ```json
 {
-  "name": "Cool T-Shirt",
-  "price": 29.99,
-  "description": "A stylish and comfortable t-shirt",
-  "variants": [
+  "message": "Categories fetched successfully",
+  "count": 3,
+  "categories": [
+    "clothing",
+    "accessories",
+    "electronics"
+  ]
+}
+```
+
+### Get Products by Category
+**GET** `/api/v1/product/categories/:category`
+
+Retrieve products filtered by category with pagination support.
+
+**Query Parameters:**
+- `limit` (optional): Number of products per page (default: 10)
+- `page` (optional): Page number (default: 1)
+
+**Example Request:**
+```
+GET /api/v1/product/categories/clothing?limit=5&page=1
+```
+
+**Response (200):**
+```json
+{
+  "message": "Products in category \"clothing\" fetched successfully",
+  "category": "clothing",
+  "page": 1,
+  "limit": 5,
+  "count": 3,
+  "products": [
     {
-      "color": "red",
-      "size": "M",
-      "image": "https://example.com/red-m.jpg"
-    },
-    {
-      "color": "blue",
-      "size": "L",
-      "image": "https://example.com/blue-l.jpg"
+      "id": 1,
+      "name": "Cool T-Shirt",
+      "slug": "cool-t-shirt",
+      "price": 29.99,
+      "description": "A stylish and comfortable t-shirt",
+      "status": "active",
+      "category": "clothing",
+      "variants": [
+        {
+          "color": "red",
+          "size": "M",
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg"
+        }
+      ],
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
     }
   ]
 }
 ```
 
-**Response (200):**
+### Add Product with Images (Admin Only)
+**POST** `/api/v1/product/add`
+
+Add a new product with image upload. Requires admin privileges.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: multipart/form-data
+```
+
+**Form Data:**
+- `name`: Product name (string)
+- `price`: Product price (number)
+- `description`: Product description (string)
+- `category`: Product category (string)
+- `variants`: JSON string of variants array
+- `images`: Multiple image files (up to 10 files)
+
+**Example Form Data:**
+```
+name: "Cool T-Shirt"
+price: 29.99
+description: "A stylish and comfortable t-shirt"
+category: "clothing"
+variants: '[{"color":"red","size":"M"},{"color":"blue","size":"L"}]'
+images: [file1.jpg, file2.jpg]
+```
+
+**Response (201):**
 ```json
 {
   "message": "Product added successfully",
@@ -507,11 +579,17 @@ Content-Type: application/json
     "price": 29.99,
     "description": "A stylish and comfortable t-shirt",
     "status": "active",
+    "category": "clothing",
     "variants": [
       {
         "color": "red",
         "size": "M",
-        "image": "https://example.com/red-m.jpg"
+        "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/image1.jpg"
+      },
+      {
+        "color": "blue",
+        "size": "L",
+        "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/image2.jpg"
       }
     ],
     "createdAt": "2024-01-15T10:30:00Z",
@@ -520,10 +598,77 @@ Content-Type: application/json
 }
 ```
 
+### Update Product (Admin Only)
+**PUT** `/api/v1/product/update/:id`
+
+Update an existing product. Supports partial updates and image replacement.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: multipart/form-data
+```
+
+**Form Data (all optional):**
+- `name`: Updated product name
+- `price`: Updated product price
+- `description`: Updated product description
+- `category`: Updated product category
+- `variants`: JSON string of updated variants array
+- `images`: New image files (will replace existing images if provided)
+
+**Response (200):**
+```json
+{
+  "message": "Product updated successfully",
+  "product": {
+    "id": 1,
+    "name": "Updated Cool T-Shirt",
+    "slug": "cool-t-shirt",
+    "price": 34.99,
+    "description": "An updated stylish and comfortable t-shirt",
+    "status": "active",
+    "category": "clothing",
+    "variants": [
+      {
+        "color": "red",
+        "size": "M",
+        "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/updated-image.jpg"
+      }
+    ],
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-16T14:20:00Z"
+  }
+}
+```
+
+### Delete Product (Admin Only)
+**DELETE** `/api/v1/product/delete/:id`
+
+Delete a product by its ID.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Product deleted successfully",
+  "product": {
+    "id": 1,
+    "name": "Cool T-Shirt",
+    "slug": "cool-t-shirt"
+  }
+}
+```
+
 **Error Responses:**
-- `400 Bad Request` - Missing required fields
+- `400 Bad Request` - Missing required fields or invalid data
 - `401 Unauthorized` - Invalid or missing token
 - `403 Forbidden` - Admin access required
+- `404 Not Found` - Product not found
 
 ## 🔒 Authentication & Authorization
 
@@ -549,7 +694,11 @@ Authorization: Bearer <your_jwt_token>
 | `POST /api/v1/auth/login` | ❌ | ❌ |
 | `GET /api/v1/product/` | ❌ | ❌ |
 | `GET /api/v1/product/:slug` | ❌ | ❌ |
+| `GET /api/v1/product/categories` | ❌ | ❌ |
+| `GET /api/v1/product/categories/:category` | ❌ | ❌ |
 | `POST /api/v1/product/add` | ✅ | Admin only |
+| `PUT /api/v1/product/update/:id` | ✅ | Admin only |
+| `DELETE /api/v1/product/delete/:id` | ✅ | Admin only |
 | All `/api/v1/address/*` | ✅ | User/Admin |
 
 ## 🗄️ Database
