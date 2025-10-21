@@ -1,8 +1,16 @@
 export type Product = {
-  id: number;
+  _id: string;
   name: string;
-  price: string;
+  description: string;
   slug: string;
-  image?: string[]; 
-  badge?: string; 
+  category: string;
+  price: number;
+  status: string;
+  variants: Variant[];
+}
+
+export type Variant = {
+  color: string;
+  size: string;
+  image: string;
 }
