@@ -15,3 +15,7 @@ export const getAllProducts = async (limit: number, skip: number) => {
 
     return products;
 };
+
+export const getProductBySlug = async (slug: string) => {
+    return await productModel.findOne({ slug });
+}

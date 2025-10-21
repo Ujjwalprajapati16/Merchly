@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { BadRequest } from "../middlewares/ErrorHandler.ts";
-import { addProductService, getProductsService } from "../services/product-services.ts";
+import { addProductService, getProductService, getProductsService } from "../services/product-services.ts";
 
 export const addProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { name, price, description, variants } = req.body;
@@ -38,4 +38,17 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export const getProduct = async (req: Request, res: Response, next: NextFunction) => { }
+export const getProduct = async (req: Request, res: Response, next: NextFunction) => { 
+  const { slug } = req.params;
+
+  if(!slug) {
+    throw new BadRequest("Slug required to fetch product");
+  }
+
+  try {
+    const product = await getProductService(slug);
+    res.status(200).json({ message: "Product fetched successfully", product });
+  } catch (error) {
+    next(error);
+  }
+}
