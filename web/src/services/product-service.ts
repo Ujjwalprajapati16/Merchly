@@ -12,7 +12,7 @@ export const getProductById = async (id: string): Promise<Product> => {
 };
 
 export const getProductsByCategory = async (category: string, page = 1, limit = 6): Promise<Product[]> => {
-  const res = await api.get(`/product/category/${category}?page=${page}&limit=${limit}`);
+  const res = await api.get(`/product/categories/${category}?page=${page}&limit=${limit}`);
   return res.data.products;
 };
 
