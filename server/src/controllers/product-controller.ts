@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { BadRequest } from "../middlewares/ErrorHandler.ts";
-import { addProductService, getCategoriesService, getProductsByCategoryService, getProductService, getProductsService, updateProductService } from "../services/product-services.ts";
+import { addProductService, deleteProductService, getCategoriesService, getProductsByCategoryService, getProductService, getProductsService, updateProductService } from "../services/product-services.ts";
 import type { Variant } from "../types/Product-types.ts";
 
 export const addProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -149,6 +149,24 @@ export const updateProduct = async (req: AuthRequest, res: Response, next: NextF
     res.status(200).json({
       message: "Product updated successfully",
       product: updatedProduct,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const productId = req.params.id;
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const deletedProduct = await deleteProductService(productId);
+
+    res.status(200).json({
+      message: "Product deleted successfully",
+      product: deletedProduct,
     });
   } catch (error) {
     next(error);

@@ -1,5 +1,6 @@
+import cloudinary from "../config/cloudinary.ts";
 import { APIError } from "../middlewares/ErrorHandler.ts";
-import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory, updateProductById } from "../repositories/product-repo.ts";
+import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory, updateProductById, findProductById, deleteProductById } from "../repositories/product-repo.ts";
 import type { Product, ProductToAdd, Variant } from "../types/Product-types.ts";
 
 export const addProductService = async (name: string, price: number, description: string, category: string, variants: Variant[]) => {
@@ -66,4 +67,29 @@ export const updateProductService = async (
     if (!updatedProduct) throw new Error("Product not found or failed to update");
 
     return updatedProduct;
+};
+
+export const deleteProductService = async (productId: string) => {
+  const product = await findProductById(productId);
+  if (!product) throw new Error("Product not found");
+
+  for (const variant of product.variants) {
+    if (variant.image) {
+      const parts = variant.image.split("/");
+      const filename = parts[parts.length - 1] ?? "";
+      const publicId = filename ? filename.split(".")[0] : "";
+
+      try {
+        if (publicId) {
+          await cloudinary.uploader.destroy(publicId);
+        }
+      } catch (err) {
+        console.error(`Failed to delete image ${variant.image} from Cloudinary`, err);
+      }
+    }
+  }
+
+  const deletedProduct = await deleteProductById(productId);
+
+  return deletedProduct;
 };

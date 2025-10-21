@@ -52,3 +52,7 @@ export const updateProductById = async (
 export const findProductById = async (productId: string) => {
   return await productModel.findById(productId).lean();
 };
+
+export const deleteProductById = async (productId: string) => {
+  return await productModel.findByIdAndDelete(productId);
+};
