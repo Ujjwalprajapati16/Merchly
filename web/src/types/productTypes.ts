@@ -14,3 +14,9 @@ export type Variant = {
   size: string;
   image: string;
 }
+
+
+export type categories = {
+  count: number;
+  category: string;
+}
