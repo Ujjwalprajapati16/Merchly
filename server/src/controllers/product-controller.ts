@@ -2,23 +2,44 @@ import type { NextFunction, Request, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { BadRequest } from "../middlewares/ErrorHandler.ts";
 import { addProductService, getProductService, getProductsService } from "../services/product-services.ts";
+import type { Variant } from "../types/Product-types.ts";
 
 export const addProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
     const { name, price, description, variants } = req.body;
-    // todo: add image
 
     if (!name || !price || !description || !variants) {
-        throw new BadRequest("Missing required fields");
+      throw new BadRequest("Missing required fields");
     }
 
+    let parsedVariants: Variant[];
     try {
-        const product = await addProductService(name, price, description, variants);
-        res.status(200).json({ message: "Product added successfully", product });
-    } catch (error) {
-        next(error);
+      parsedVariants = typeof variants === "string" ? JSON.parse(variants) : variants;
+    } catch (err) {
+      throw new BadRequest("Invalid variants JSON format");
     }
 
-}
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      throw new BadRequest("At least one variant image is required");
+    }
+
+    const variantsWithImages = parsedVariants.map((variant, index) => ({
+      ...variant,
+      image: files[index]?.path || "", 
+    }));
+
+    const product = await addProductService(name, price, description, variantsWithImages);
+
+    res.status(201).json({
+      message: "Product added successfully",
+      product,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
