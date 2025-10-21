@@ -1,68 +1,83 @@
 "use client";
 
-import products from "@/_db/product.json";
+import { Skeleton } from "@/components/ui/skeleton";
 import CategoryCard from "./components/CategoryCard";
+import { useProductCategories } from "@/hooks/useProducts";
 import {
   FaTshirt,
-  FaShoppingBag,
-  FaCoffee,
   FaHatCowboy,
+  FaMugHot,
+  FaClipboard,
+  FaShoppingBag,
 } from "react-icons/fa";
-import { motion } from "framer-motion";
 import { IconType } from "react-icons";
+import { categories } from "@/types/productTypes.js";
 
-export default function CategoriesPage() {
-  const iconMap: Record<string, IconType> = {
-    "t-shirts": FaTshirt,
-    "hoodies": FaTshirt,
-    "mugs": FaCoffee,
-    "bags": FaShoppingBag,
-    "caps": FaHatCowboy,
-  };
+const categoryIcons: Record<string, IconType> = {
+  "t-shirts": FaTshirt,
+  hoodies: FaTshirt,
+  caps: FaHatCowboy,
+  mugs: FaMugHot,
+  posters: FaClipboard,
+  bags: FaShoppingBag,
+};
 
-  const categories = Array.from(new Set(products.map((p) => p.category))).map((category) => {
-    const slug = category.toLowerCase().replace(/\s+/g, "-");
-    const count = products.filter((p) => p.category === category).length;
-    const Icon = iconMap[slug] || FaShoppingBag;
+export default function ProductCategories() {
+  const { data, isLoading, isError, refetch } = useProductCategories();
 
-    return { name: category, slug, count, Icon };
-  });
+  if (isLoading) {
+    return (
+      <section className="py-16 px-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-[200px] rounded-xl" />
+        ))}
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section className="py-16 flex flex-col items-center gap-3 text-center text-muted-foreground">
+        <p className="text-sm">Failed to load categories.</p>
+        <button
+          onClick={() => refetch?.()}
+          className="px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm hover:bg-primary/20 transition"
+        >
+          Retry
+        </button>
+      </section>
+    );
+  }
+
+  const categories = data ?? [];
 
   return (
-    <section className="container mx-auto px-6 py-16">
-      <motion.div
-        className="text-center mb-16"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent py-1.5">
-          Shop by Category
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Discover our collections crafted for comfort, style, and performance.
+    <section className="w-full py-16 px-6 bg-background">
+      <div className="max-w-6xl mx-auto text-center">
+        <h2 className="text-3xl font-semibold mb-3">Product Categories</h2>
+        <p className="text-muted-foreground mb-10">
+          Browse our collection of exclusive merchandise.
         </p>
-      </motion.div>
 
-      <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: {},
-          visible: { transition: { staggerChildren: 0.1 } },
-        }}
-      >
-        {categories.map((cat) => (
-          <motion.div
-            key={cat.slug}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <CategoryCard {...cat} />
-          </motion.div>
-        ))}
-      </motion.div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {categories.map((cat: categories | string) => {
+            const categoryName =
+              typeof cat === "string" ? cat : cat?.category ?? "category";
+            const slug = categoryName.toLowerCase().replace(/\s+/g, "-");
+            const Icon = categoryIcons[slug] || FaClipboard;
+
+            return (
+              <CategoryCard
+                key={slug}
+                name={categoryName}
+                slug={slug}
+                count={typeof cat === "string" ? 0 : cat.count}
+                Icon={Icon}
+              />
+            );
+          })}
+        </div>
+      </div>
     </section>
   );
 }

@@ -1,37 +1,37 @@
 "use client";
 
 import { useState } from "react";
-import ProductCard from "../../../components/ProductCard";
+import ProductCard from "@/components/ProductCard";
 import SortDropdown from "./SortDropdown";
-import { Product } from "@/types/productTypes.js";
+import { Product } from "@/types/productTypes";
 
 interface ProductGridProps {
-    products: Product[];
+  products: Product[];
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
-    const [sortOption, setSortOption] = useState<"newest" | "priceLow" | "priceHigh">("newest");
+  const [sortOption, setSortOption] = useState<"newest" | "priceLow" | "priceHigh">("newest");
 
-    const sortedProducts = [...products].sort((a, b) => {
-        if (sortOption === "priceLow") return parseFloat(a.price.slice(1)) - parseFloat(b.price.slice(1));
-        if (sortOption === "priceHigh") return parseFloat(b.price.slice(1)) - parseFloat(a.price.slice(1));
-        return 0; // newest or default order
-    });
+  const sortedProducts = [...products].sort((a, b) => {
+    if (sortOption === "priceLow") return a.price - b.price;
+    if (sortOption === "priceHigh") return b.price - a.price;
+    if (sortOption === "newest") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    return 0;
+  });
 
-    return (
-        <div>
-            {/* Sort Dropdown */}
-            <SortDropdown sortOption={sortOption} setSortOption={setSortOption} />
+  return (
+    <div>
+      {/* Sort Dropdown */}
+      <SortDropdown sortOption={sortOption} setSortOption={setSortOption} />
 
-
-            {/* Products Grid */}
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {sortedProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                ))}
-            </div>
-        </div>
-    );
+      {/* Products Grid */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {sortedProducts.map((product) => (
+          <ProductCard key={product._id} product={product} />
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default ProductGrid;

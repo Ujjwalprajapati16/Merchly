@@ -14,38 +14,45 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Link href={`/products/${product.slug}`} className="block group">
-      <Card className="overflow-hidden rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer">
-        <div className="relative w-full h-56 bg-muted/10 flex items-center justify-center rounded-2xl">
+      <Card className="overflow-hidden rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group">
+        {/* Image Section */}
+        <div className="relative w-full aspect-square bg-muted/10 overflow-hidden">
           <Image
-            src={product.image?.[0] || ""}
+            src={product.variants?.[0]?.image || "/images/placeholder.png"}
             alt={product.name}
-            width={300}
-            height={300}
-            className="object-contain rounded-2xl border"
+            fill
+            className="object-contain transition-transform duration-300 group-hover:scale-105"
           />
 
-          {product.badge && (
-            <span className="absolute top-3 right-3 bg-primary text-white text-xs px-2 py-1 rounded-full dark:bg-primary/80 dark:text-primary-foreground">
-              {product.badge}
+          {product.status && (
+            <span
+              className={`absolute top-3 right-3 text-xs px-2 py-1 rounded-full text-white ${product.status === "available" ? "bg-green-600" : "bg-red-600"
+                }`}
+            >
+              {product.status === "available" ? "Available" : "Sold Out"}
             </span>
           )}
         </div>
 
-        <CardContent className="text-center flex flex-col items-center p-4 space-y-2">
-          <h3 className="font-medium text-lg group-hover:text-primary transition-colors">
+        {/* Content Section */}
+        <CardContent className="flex flex-col items-center text-center p-4 space-y-2">
+          <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
             {product.name}
           </h3>
-          <p className="text-sm text-muted-foreground">{product.price}</p>
+
+          <p className="text-sm text-muted-foreground">₹{product.price}</p>
 
           <Button
             variant="outline"
-            className="flex items-center gap-2 text-sm mt-2"
-            onClick={(e) => e.preventDefault()} // prevents link navigation on button click
+            size="sm"
+            className="flex items-center gap-2 mt-2"
+            onClick={(e) => e.preventDefault()}
           >
             <FaShoppingCart className="w-4 h-4" /> Add to Cart
           </Button>
         </CardContent>
       </Card>
+
     </Link>
   );
 };

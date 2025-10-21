@@ -7,6 +7,8 @@ export type Product = {
   price: number;
   status: string;
   variants: Variant[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type Variant = {
