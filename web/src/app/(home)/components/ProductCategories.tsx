@@ -27,7 +27,6 @@ const categoryIcons: Record<string, JSX.Element> = {
 
 const ProductCategories = () => {
   const { data, isLoading, isError } = useProductCategories();
-  console.log(data);
 
   if (isLoading) {
     return (

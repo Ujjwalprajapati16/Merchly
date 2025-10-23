@@ -8,6 +8,8 @@ import { FcGoogle } from "react-icons/fc";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLogin } from "@/hooks/useAuth"; 
+import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
   email: z
@@ -27,10 +29,12 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -39,9 +43,17 @@ export function LoginForm({
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    console.log("Login form data:", data);
-    // todo: Send data to server
+  const { mutate: loginUser, isPending } = useLogin();
+
+  const onSubmit = (data: LoginFormData) => {
+    loginUser(
+      { email: data.email, password: data.password },
+      {
+        onSuccess: () => {
+          router.push("/"); 
+        },
+      }
+    );
   };
 
   return (
@@ -58,6 +70,7 @@ export function LoginForm({
       </div>
 
       <div className="grid gap-6">
+        {/* Email Field */}
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -73,6 +86,7 @@ export function LoginForm({
           )}
         </div>
 
+        {/* Password Field */}
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
@@ -83,11 +97,7 @@ export function LoginForm({
               Forgot your password?
             </a>
           </div>
-          <Input
-            id="password"
-            type="password"
-            {...register("password")}
-          />
+          <Input id="password" type="password" {...register("password")} />
           {errors.password && (
             <p className="text-red-500 text-xs mt-1">
               {errors.password.message}
@@ -95,16 +105,19 @@ export function LoginForm({
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Logging in..." : "Login"}
+        {/* Submit Button */}
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? "Logging in..." : "Login"}
         </Button>
 
+        {/* Divider */}
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
           <span className="bg-background text-muted-foreground relative z-10 px-2">
             Or continue with
           </span>
         </div>
 
+        {/* Google Login */}
         <Button variant="outline" className="w-full" type="button">
           <FcGoogle className="mr-2 h-4 w-4" />
           Login with Google

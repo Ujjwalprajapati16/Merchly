@@ -18,9 +18,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import Logo from "@/components/Logo";
+import { useAuth } from "@/providers/AuthProvider";
 
 const HamburgerIcon = ({ className }: { className?: string }) => (
   <svg
@@ -50,17 +59,11 @@ export interface Navbar04Props extends React.HTMLAttributes<HTMLElement> {
   cartCount?: number;
 }
 
-const defaultNavigationLinks: Navbar04NavItem[] = [
-  { href: "/products", label: "Products" },
-  { href: "/categories", label: "Categories" },
-  { href: "/deals", label: "Deals" },
-];
-
 export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
   (
     {
       className,
-      navigationLinks = defaultNavigationLinks,
+      navigationLinks,
       cartCount = 2,
       ...props
     },
@@ -70,13 +73,28 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
     const containerRef = useRef<HTMLElement>(null);
     const searchId = useId();
     const { theme, setTheme } = useTheme();
+    const { user, logout } = useAuth();
+
+    console.log(user);
+
+    const defaultLinks: Navbar04NavItem[] = user?.role === "admin"
+      ? [
+        { href: "/products", label: "Products" },
+        { href: "/categories", label: "Categories" },
+        { href: "/admin/dashboard", label: "Dashboard" },
+        { href: "/admin/inventory", label: "Inventory" },
+      ]
+      : [
+        { href: "/products", label: "Products" },
+        { href: "/categories", label: "Categories" },
+        { href: "/orders", label: "Orders" },
+        { href: "/wishlist", label: "Wishlist" },
+      ];
+
+    const navLinks = navigationLinks || defaultLinks;
 
     useEffect(() => {
-      const handleResize = () => {
-        if (containerRef.current) {
-          setIsMobile(window.innerWidth < 768);
-        }
-      };
+      const handleResize = () => setIsMobile(window.innerWidth < 768);
       handleResize();
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
@@ -98,6 +116,16 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
       console.log("Search query:", query);
     };
 
+    const getInitials = (name: string | undefined, email: string) => {
+      if (name) {
+        const parts = name.trim().split(" ");
+        if (parts.length >= 2)
+          return (parts[0][0] + parts[1][0]).toUpperCase();
+        return name.slice(0, 2).toUpperCase();
+      }
+      return email.slice(0, 2).toUpperCase();
+    };
+
     return (
       <header
         ref={combinedRef}
@@ -115,7 +143,7 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
           {!isMobile && (
             <NavigationMenu>
               <NavigationMenuList className="flex gap-6">
-                {navigationLinks.map((link, index) => (
+                {navLinks.map((link, index) => (
                   <NavigationMenuItem key={index}>
                     <NavigationMenuLink asChild>
                       <Link
@@ -150,21 +178,54 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/cart">
-              <Button size="sm" className="relative">
-                Cart
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 rounded-full bg-primary text-white text-xs w-5 h-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full h-9 w-9 font-semibold"
+                  >
+                    {getInitials(user.name, user.email)}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>
+                    {user.name || user.email}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="text-red-600 cursor-pointer"
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/login">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+            )}
+
+            {/* Cart */}
+            {user?.role !== "admin" && (
+              <Link href="/cart">
+                <Button size="sm" className="relative">
+                  Cart
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 rounded-full bg-primary text-white text-xs w-5 h-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            )}
 
             {/* Theme Switch */}
             <Button
@@ -185,7 +246,7 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-48 p-2">
                   <nav className="flex flex-col gap-2">
-                    {navigationLinks.map((link, index) => (
+                    {navLinks.map((link, index) => (
                       <Link
                         key={index}
                         href={link.href}
@@ -194,18 +255,38 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
                         {link.label}
                       </Link>
                     ))}
-                    <Link
-                      href="/login"
-                      className="text-sm font-medium hover:text-primary transition"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      href="/cart"
-                      className="text-sm font-medium hover:text-primary transition"
-                    >
-                      Cart ({cartCount})
-                    </Link>
+                    {!user && (
+                      <Link
+                        href="/login"
+                        className="text-sm font-medium hover:text-primary transition"
+                      >
+                        Sign In
+                      </Link>
+                    )}
+                    {user && (
+                      <>
+                        <Link
+                          href="/profile"
+                          className="text-sm font-medium hover:text-primary transition"
+                        >
+                          Profile
+                        </Link>
+                        <button
+                          onClick={logout}
+                          className="text-sm text-left font-medium text-red-600 hover:text-red-700 transition"
+                        >
+                          Logout
+                        </button>
+                      </>
+                    )}
+                    {user?.role !== "admin" && (
+                      <Link
+                        href="/cart"
+                        className="text-sm font-medium hover:text-primary transition"
+                      >
+                        Cart ({cartCount})
+                      </Link>
+                    )}
                   </nav>
                 </PopoverContent>
               </Popover>

@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/providers/theme-provider";
 import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -37,20 +38,22 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased`}
       >
-        <QueryProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" value={{ light: "light", dark: "dark" }} enableSystem>
-            <Navbar />
-            <Toaster 
-              position="bottom-right"
-              toastOptions={{
-                className: 'bg-popover text-popover-foreground shadow-md dark:shadow-none dark:bg-popover/60 dark:text-popover-foreground',
-                duration: 3000,
-              }}
-            />
-            {children}
-            <Footer />
-          </ThemeProvider>
-        </QueryProvider>
+        <AuthProvider>
+          <QueryProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" value={{ light: "light", dark: "dark" }} enableSystem>
+              <Navbar />
+              <Toaster
+                position="bottom-right"
+                toastOptions={{
+                  className: 'bg-popover text-popover-foreground shadow-md dark:shadow-none dark:bg-popover/60 dark:text-popover-foreground',
+                  duration: 3000,
+                }}
+              />
+              {children}
+              <Footer />
+            </ThemeProvider>
+          </QueryProvider>
+        </AuthProvider>
       </body>
     </html >
   );
