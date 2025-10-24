@@ -1,0 +1,57 @@
+"use client";
+
+import { Product } from "@/types/productTypes";
+import { TableCell, TableRow } from "@/components/ui/table";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+
+const editHandler = () => {
+    toast.success("Product edited successfully");
+};
+
+const deleteHandler = () => {
+    toast.success("Product deleted successfully");
+};
+
+export default function ProductRow({ product }: { product: Product }) {
+  const mainImage = product.variants[0]?.image || "/placeholder.png";
+
+  return (
+    <TableRow>
+      <TableCell>
+        <Image
+          src={mainImage}
+          alt={product.name}
+          width={40}
+          height={40}
+          className="rounded-md object-cover"
+        />
+      </TableCell>
+      <TableCell className="font-medium">{product.name}</TableCell>
+      <TableCell>{product.category}</TableCell>
+      <TableCell>₹{product.price}</TableCell>
+      <TableCell>
+        <span
+          className={`px-2 py-1 rounded-full text-xs ${
+            product.status === "available"
+              ? "bg-green-100 text-green-700"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {product.status}
+        </span>
+      </TableCell>
+      <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
+      <TableCell className="flex gap-2">
+        <Button variant="ghost" size="icon" onClick={editHandler}>
+          <Pencil className="w-4 h-4" />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={deleteHandler} className="text-destructive hover:text-destructive">
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}

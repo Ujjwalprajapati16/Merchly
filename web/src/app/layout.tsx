@@ -49,7 +49,9 @@ export default function RootLayout({
                   duration: 3000,
                 }}
               />
-              {children}
+              <div className="px-4 sm:px-6 lg:px-10 xl:px-16">
+                {children}
+              </div>
               <Footer />
             </ThemeProvider>
           </QueryProvider>
