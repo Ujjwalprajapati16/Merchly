@@ -11,6 +11,7 @@ import {
 import { Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProductCategories } from "@/hooks/useProducts";
+import AddProductDialog from "./AddProductDialog";
 
 interface Category {
     category: string;
@@ -70,14 +71,7 @@ export default function InventoryHeader({
             </div>
 
             {/* Add Product Button */}
-            <Button
-                className="gap-2"
-                onClick={onAddProduct}
-                disabled={!onAddProduct}
-            >
-                <Plus className="w-4 h-4" />
-                Add Product
-            </Button>
+            <AddProductDialog />
         </header>
     );
 }
