@@ -10,7 +10,9 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
-import { Product } from "@/types/productTypes.js";
+import { Product } from "@/types/productTypes";
+import { useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 export const variantSchema = z.object({
     color: z.string().min(1, "Color is required"),
@@ -41,6 +43,8 @@ export function AddEditProductForm({ onClose, product, isEdit = false }: AddEdit
     const addMutation = useAddProduct();
     const updateMutation = useUpdateProduct();
     const { data: categories, isLoading: loadingCategories } = useProductCategories();
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const { control, register, handleSubmit, formState: { errors } } = useForm<ProductFormData>({
         resolver: zodResolver(productSchema),
@@ -81,9 +85,13 @@ export function AddEditProductForm({ onClose, product, isEdit = false }: AddEdit
             });
 
             if (isEdit && product) {
+                setIsLoading(true);
                 await updateMutation.mutateAsync({ id: product._id, formData });
+                setIsLoading(false);
             } else {
+                setIsLoading(true);
                 await addMutation.mutateAsync(formData);
+                setIsLoading(false);
             }
 
             onClose();
@@ -153,15 +161,11 @@ export function AddEditProductForm({ onClose, product, isEdit = false }: AddEdit
             <Button
                 type="submit"
                 className="w-full mt-3"
-                disabled={addMutation.isLoading || updateMutation.isLoading}
+                disabled={isLoading}
             >
-                {addMutation.isLoading || updateMutation.isLoading
-                    ? isEdit
-                        ? "Updating..."
-                        : "Adding..."
-                    : isEdit
-                        ? "Update Product"
-                        : "Add Product"}
+                {isEdit ? 
+                    isLoading ? <><Spinner /> Updating...</> : "Update Product" : 
+                    isLoading ? <><Spinner /> Adding...</> : "Add Product"}
             </Button>
         </form>
     );

@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function ProductRow({ product }: { product: Product }) {
   const mainImage = product.variants[0]?.image || "/placeholder.png";
@@ -24,10 +25,13 @@ export default function ProductRow({ product }: { product: Product }) {
   const deleteMutation = useDeleteProduct();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = async () => {
     try {
+      setIsLoading(true);
       await deleteMutation.mutateAsync(product._id);
+      setIsLoading(false);
       setIsDeleteOpen(false);
     } catch (err) {
       toast.error("Failed to delete product");
@@ -98,7 +102,7 @@ export default function ProductRow({ product }: { product: Product }) {
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
-              Delete
+              {isLoading ? <><Spinner /> Deleting</> : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>
