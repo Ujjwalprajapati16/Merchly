@@ -1,121 +1,167 @@
 "use client";
 
-import { useState } from "react";
-import { useAddProduct } from "@/hooks/useAdminActions";
-import { VariantFields } from "./VariantFields";
-import { Input } from "@/components/ui/input";
+import { useAddProduct, useUpdateProduct } from "@/hooks/useAdminActions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useProductCategories } from "@/hooks/useProducts";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { VariantFields } from "./VariantFields";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Input } from "@/components/ui/input";
+import { Product } from "@/types/productTypes.js";
 
-export function AddProductForm({ onClose }: { onClose: () => void }) {
-    const { mutateAsync: addProduct, isPending } = useAddProduct();
-    const [variants, setVariants] = useState([{ color: "", size: "", image: null }]);
-    const [formData, setFormData] = useState({
-        name: "",
-        price: "",
-        description: "",
-        category: "",
-    });
+export const variantSchema = z.object({
+    color: z.string().min(1, "Color is required"),
+    size: z.string().min(1, "Size is required"),
+    image: z.any().optional(),
+});
 
+export const productSchema = z.object({
+    name: z.string().min(1, "Product name is required"),
+    price: z
+        .string()
+        .regex(/^\d+(\.\d{1,2})?$/, "Price must be a valid number")
+        .transform(Number),
+    description: z.string().optional(),
+    category: z.string().min(1, "Category is required"),
+    variants: z.array(variantSchema).min(1, "At least one variant is required"),
+});
+
+export type ProductFormData = z.infer<typeof productSchema>;
+
+interface AddEditProductFormProps {
+    onClose: () => void;
+    product?: Product;
+    isEdit?: boolean;
+}
+
+export function AddEditProductForm({ onClose, product, isEdit = false }: AddEditProductFormProps) {
+    const addMutation = useAddProduct();
+    const updateMutation = useUpdateProduct();
     const { data: categories, isLoading: loadingCategories } = useProductCategories();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const { control, register, handleSubmit, formState: { errors } } = useForm<ProductFormData>({
+        resolver: zodResolver(productSchema),
+        defaultValues: {
+            name: product?.name || "",
+            price: product?.price?.toString() || "",
+            description: product?.description || "",
+            category: product?.category || "",
+            variants: product?.variants?.map((v: any) => ({
+                color: v.color,
+                size: v.size,
+                image: v.image || null,
+            })) || [{ color: "", size: "", image: null }],
+        },
+    });
 
-        // Validation
-        if (!formData.name || !formData.price || !formData.category) {
-            toast.error("Please fill all required fields");
-            return;
-        }
-
+    const onSubmit = async (data: ProductFormData) => {
         try {
-            const data = new FormData();
-            data.append("name", formData.name);
-            data.append("price", formData.price);
-            data.append("description", formData.description);
-            data.append("category", formData.category);
+            const formData = new FormData();
+            formData.append("name", data.name);
+            formData.append("price", data.price.toString());
+            formData.append("description", data.description || "");
+            formData.append("category", data.category);
 
-            // ✅ Build variant JSON (without image)
-            const variantPayload = variants.map(({ color, size }) => ({ color, size }));
-            data.append("variants", JSON.stringify(variantPayload));
+            // Build variant payload
+            const variantsPayload = data.variants.map(({ color, size }) => ({ color, size }));
+            formData.append("variants", JSON.stringify(variantsPayload));
 
-            // ✅ Attach all variant images (in same order)
-            variants.forEach((v) => {
-                if (v.image) data.append("images", v.image);
+            // Attach images:
+            // - If new File => append as "images"
+            // - If existing string URL => append as "existingImages"
+            data.variants.forEach((v, index) => {
+                if (v.image instanceof File) {
+                    formData.append("images", v.image);
+                } else if (typeof v.image === "string" && v.image.length > 0) {
+                    formData.append("existingImages", v.image);
+                }
             });
 
-            await addProduct(data);
-            toast.success("✅ Product added successfully!");
+            if (isEdit && product) {
+                await updateMutation.mutateAsync({ id: product._id, formData });
+            } else {
+                await addMutation.mutateAsync(formData);
+            }
+
             onClose();
         } catch (err: any) {
             console.error(err);
-            toast.error(err?.response?.data?.message || "Failed to add product");
+            toast.error(err?.response?.data?.message || "Failed to submit product");
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 pb-4">
-            {/* Product Name */}
-            <Input
-                placeholder="Product Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-            />
-
-            {/* Price */}
-            <Input
-                placeholder="Price"
-                type="number"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                required
-            />
-
-            {/* Category Dropdown */}
-            <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium">Category</label>
-                <Select
-                    value={formData.category}
-                    onValueChange={(val) => setFormData({ ...formData, category: val })}
-                >
-                    <SelectTrigger>
-                        <SelectValue placeholder={loadingCategories ? "Loading..." : "Select Category"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {categories?.map((cat: any) => (
-                            <SelectItem key={cat.category} value={cat.category}>
-                                {cat.category.charAt(0).toUpperCase() + cat.category.slice(1)} ({cat.count})
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-4">
+            {/* Name */}
+            <div>
+                <Input placeholder="Product Name" {...register("name")} />
+                {errors.name && <p className="text-destructive text-xs mt-1">{errors.name.message}</p>}
             </div>
 
+            {/* Price */}
+            <div>
+                <Input placeholder="Price" type="number" step="0.01" {...register("price")} />
+                {errors.price && <p className="text-destructive text-xs mt-1">{errors.price.message}</p>}
+            </div>
+
+            {/* Category */}
+            <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">Category</label>
+                <Controller
+                    control={control}
+                    name="category"
+                    render={({ field }) => (
+                        <Select
+                            value={field.value}
+                            onValueChange={(val) => field.onChange(val)}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder={loadingCategories ? "Loading..." : "Select Category"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories?.map((cat: any) => (
+                                    <SelectItem key={cat.category} value={cat.category}>
+                                        {cat.category.charAt(0).toUpperCase() + cat.category.slice(1)} ({cat.count})
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                />
+                {errors.category && <p className="text-destructive text-xs mt-1">{errors.category.message}</p>}
+            </div>
+
+
             {/* Description */}
-            <textarea
-                placeholder="Description"
-                className="w-full border rounded-md p-2 text-sm"
-                rows={3}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
+            <div>
+                <textarea
+                    placeholder="Description"
+                    className="w-full border rounded-md p-2 text-sm"
+                    rows={3}
+                    {...register("description")}
+                />
+            </div>
 
             {/* Variants */}
-            <VariantFields variants={variants} setVariants={setVariants} />
+            <VariantFields control={control} name="variants" />
+            {errors.variants && <p className="text-destructive text-xs mt-1">{errors.variants.message?.toString()}</p>}
 
             {/* Submit */}
-            <Button type="submit" className="w-full mt-3" disabled={isPending}>
-                {isPending ? "Adding..." : "Add Product"}
+            <Button
+                type="submit"
+                className="w-full mt-3"
+                disabled={addMutation.isLoading || updateMutation.isLoading}
+            >
+                {addMutation.isLoading || updateMutation.isLoading
+                    ? isEdit
+                        ? "Updating..."
+                        : "Adding..."
+                    : isEdit
+                        ? "Update Product"
+                        : "Add Product"}
             </Button>
         </form>
     );

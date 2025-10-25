@@ -14,7 +14,7 @@ export type Product = {
 export type Variant = {
   color: string;
   size: string;
-  image: string;
+  image: File | string | null;
 }
 
 

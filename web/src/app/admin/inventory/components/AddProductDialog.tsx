@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { AddProductForm } from "./AddProductForm";
+import { AddEditProductForm } from "./AddProductForm";
 import { useState } from "react";
 
 export default function AddProductDialog() {
@@ -22,12 +22,12 @@ export default function AddProductDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Product</DialogTitle>
         </DialogHeader>
 
-        <AddProductForm onClose={() => setOpen(false)} />
+        <AddEditProductForm onClose={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

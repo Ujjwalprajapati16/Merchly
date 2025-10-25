@@ -27,7 +27,7 @@ export const addProduct = async (req: AuthRequest, res: Response, next: NextFunc
 
     const variantsWithImages = parsedVariants.map((variant, index) => ({
       ...variant,
-      image: files[index]?.path || "", 
+      image: files[index]?.path || "",
     }));
 
     const product = await addProductService(name, price, description, category, variantsWithImages);
@@ -59,10 +59,10 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export const getProduct = async (req: Request, res: Response, next: NextFunction) => { 
+export const getProduct = async (req: Request, res: Response, next: NextFunction) => {
   const { slug } = req.params;
 
-  if(!slug) {
+  if (!slug) {
     throw new BadRequest("Slug required to fetch product");
   }
 
@@ -120,7 +120,7 @@ export const updateProduct = async (req: AuthRequest, res: Response, next: NextF
       return res.status(400).json({ message: "Product ID is required" });
     }
 
-    const { name, price, description, category, variants } = req.body;
+    const { name, price, description, category, variants, existingImages } = req.body;
 
     // Parse variants JSON if sent as string (multipart/form-data)
     let parsedVariants;
@@ -128,15 +128,18 @@ export const updateProduct = async (req: AuthRequest, res: Response, next: NextF
       parsedVariants = typeof variants === "string" ? JSON.parse(variants) : variants;
     }
 
-    // Handle uploaded images if any
     const files = req.files as Express.Multer.File[] | undefined;
-    let variantsWithImages = parsedVariants;
-    if (files && files.length > 0 && parsedVariants) {
-      variantsWithImages = parsedVariants.map((v: any, index: number) => ({
+
+    // Merge uploaded files and existing images
+    const variantsWithImages = parsedVariants?.map((v: any, index: number) => {
+      // Use uploaded file first, else fallback to existing image URL
+      const fileImage = files?.[index]?.path;
+      const existingImage = existingImages ? (Array.isArray(existingImages) ? existingImages[index] : existingImages) : null;
+      return {
         ...v,
-        image: files[index]?.path || v.image, 
-      }));
-    }
+        image: fileImage || existingImage || null,
+      };
+    });
 
     const updatedProduct = await updateProductService(productId, {
       name,
