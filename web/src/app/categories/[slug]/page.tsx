@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import ProductCard from "@/components/ProductCard";
 import CategoriesHero from "../components/CategoriesHero";
 import { useProductsByCategory } from "@/hooks/useProducts";
@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Product } from "@/types/productTypes.js";
 
 interface CategoryDetailsProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export default function CategoryDetails({ params }: CategoryDetailsProps) {
+export default function CategoryDetails(props: CategoryDetailsProps) {
+  const params = use(props.params);
   const { slug } = params;
 
   const categoryName = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

@@ -1,4 +1,5 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import { useProduct } from "@/hooks/useProducts";
 import { ProductSkeleton } from "@/components/ProductSkeleton";
@@ -6,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { ProductDetailsWrapper } from "./components/ProductDetailsWrapper";
 
 interface ProductDetailsProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export default function ProductDetails({ params }: ProductDetailsProps) {
+export default function ProductDetails(props: ProductDetailsProps) {
+  const params = use(props.params);
   const slug = params.slug;
 
   const { data: product, isLoading, isError, refetch } = useProduct(slug);
