@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
-import { addItemToCartService, getCartByUserId } from "../services/cart-services.ts";
+import { addItemToCartService, getCartByUserId, updateCartItemQuantity } from "../services/cart-services.ts";
 
 export const getCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -45,7 +45,28 @@ export const addToCart = async (req: AuthRequest, res: Response, next: NextFunct
 };  
 
 export const updateQuantity = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    res.json({ message: "Cart updated successfully" });
+    try {
+        const userId = req.user?.id;
+        const { itemId } = req.params;
+        const { quantity } = req.body;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized access" });
+        }
+
+        if (!itemId || typeof quantity !== "number" || quantity < 1) {
+            return res.status(400).json({ message: "Invalid item ID or quantity" });
+        }
+
+        const updatedCart = await updateCartItemQuantity(userId, itemId, quantity);
+
+        res.status(200).json({
+            message: "Cart updated successfully",
+            cart: updatedCart,
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 export const removeFromCart = async (req: AuthRequest, res: Response, next: NextFunction) => {

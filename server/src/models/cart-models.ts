@@ -34,7 +34,6 @@ const cartItemSchema = new mongoose.Schema<CartItem>(
             default: 0,
         }
     },
-    { _id: false }
 );
 
 // Cart schema

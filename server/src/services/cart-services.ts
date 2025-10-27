@@ -1,6 +1,7 @@
+import mongoose from "mongoose";
 import { findCartByUserId, createEmptyCart, saveCart } from "../repositories/cart-repo.ts";
 import { findProductById } from "../repositories/product-repo.ts";
-import type { Cart } from "../types/Cart-types.ts";
+import type { Cart, CartItem } from "../types/Cart-types.ts";
 import type { Variant } from "../types/Product-types.ts";
 
 export const getCartByUserId = async (userId: string): Promise<Cart> => {
@@ -41,6 +42,7 @@ export const addItemToCartService = async (
         existingItem.subtotal = product.price * existingItem.quantity;
     } else {
         cart.items.push({
+            _id: new mongoose.Types.ObjectId().toString(),
             product: product,
             variant,
             quantity,
@@ -53,4 +55,30 @@ export const addItemToCartService = async (
 
     const updatedCart = await saveCart(cart);
     return updatedCart.toObject();
+};
+
+export const updateCartItemQuantity = async (userId: string, itemId: string, quantity: number) => {
+    const cart = await findCartByUserId(userId);
+    if (!cart) throw new Error("Cart not found");
+    
+    const item = cart.items.find((it: any) => {
+        if (it._id && typeof it._id === "object" && typeof (it._id as any).toString === "function") {
+            return (it._id as any).toString() === itemId;
+        }
+        return it._id === itemId;
+    });
+
+    if (!item) throw new Error("Item not found in cart");
+
+    item.quantity = quantity;
+
+    // Recalculate subtotal for this item
+    const productPrice = (item.product as any)?.price ?? 0;
+    item.subtotal = productPrice * quantity;
+
+    // Recalculate total for the entire cart
+    cart.total = cart.items.reduce((acc: number, it: CartItem) => acc + it.subtotal, 0);
+
+    await cart.save();
+    return cart;
 };
