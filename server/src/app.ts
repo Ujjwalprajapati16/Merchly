@@ -5,6 +5,7 @@ import authRouter from "./routes/auth-routes.ts";
 import { errorHandler } from "./middlewares/ErrorHandler.ts";
 import addressRouter from "./routes/address-routes.ts";
 import productRouter from "./routes/product-routes.ts";
+import cartRouter from "./routes/cart-routes.ts";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/address", addressRouter);
 app.use("/api/v1/product", productRouter);
+app.use("/api/v1/cart", cartRouter);
 
 // Root route
 app.use("/", (req, res) => {
