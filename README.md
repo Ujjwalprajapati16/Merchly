@@ -43,20 +43,17 @@
 ## Tech Stack
 
 - **Frontend**: [TypeScript](https://www.typescriptlang.org/) (97.3%), [CSS](https://developer.mozilla.org/docs/Web/CSS), [JavaScript](https://developer.mozilla.org/docs/Web/JavaScript)
-- **Frameworks/Libraries**: (e.g. React, Next.js, Redux) _Replace with actual stack if available_
-- **Backend/API**: (e.g. Node.js, Express, GraphQL) _Replace with actual stack if available_
-- **Database**: (e.g. MongoDB, PostgreSQL) _Replace with actual stack if available_
-- **Payment**: Stripe, PayPal, etc. _Customize as implemented_
-- **Testing**: Jest, Cypress, etc.
-- **CI/CD**: GitHub Actions
-
+- **Frameworks/Libraries**: React, NextJS
+- **Backend/API**: NodeJS, Express
+- **Database**: MongoDB
+- **Payment**: Not decided yet
 ---
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v18+ recommended)
+- Node.js (v20+ recommended)
 - npm or yarn
 - [Git](https://git-scm.com/)
 
