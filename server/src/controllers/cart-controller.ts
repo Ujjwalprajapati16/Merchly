@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
-import { addItemToCartService, clearUserCartService, getCartByUserId, removeItemFromCartService, updateCartItemQuantity } from "../services/cart-services.ts";
+import { addItemToCartService, clearUserCartService, getCartByUserId, moveItemBackToCartService, removeItemFromCartService, saveItemForLaterService, updateCartItemQuantity } from "../services/cart-services.ts";
 
 export const getCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -42,7 +42,7 @@ export const addToCart = async (req: AuthRequest, res: Response, next: NextFunct
     } catch (error) {
         next(error);
     }
-};  
+};
 
 export const updateQuantity = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -72,7 +72,7 @@ export const updateQuantity = async (req: AuthRequest, res: Response, next: Next
 export const removeFromCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const userId = req.user?.id;
-        const { itemId } = req.params; 
+        const { itemId } = req.params;
 
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized access" });
@@ -116,5 +116,49 @@ export const checkoutCart = async (req: AuthRequest, res: Response, next: NextFu
 };
 
 export const saveForLater = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    res.json({ message: "Product saved for later successfully" });
+    try {
+        const userId = req.user?.id;
+        const { itemId } = req.params;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized access" });
+        }
+
+        if (!itemId) {
+            return res.status(400).json({ message: "Item ID is required" });
+        }
+
+        const updatedCart = await saveItemForLaterService(userId, itemId);
+
+        res.status(200).json({
+            message: "Product saved for later successfully",
+            cart: updatedCart,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const moveToCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const userId = req.user?.id;
+        const { itemId } = req.params;
+
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized access" });
+        }
+
+        if (!itemId) {
+            return res.status(400).json({ message: "Item ID is required" });
+        }
+
+        const updatedCart = await moveItemBackToCartService(userId, itemId);
+
+        res.status(200).json({
+            message: "Product moved back to cart successfully",
+            cart: updatedCart,
+        });
+    } catch (error) {
+        next(error);
+    }
 };

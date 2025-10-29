@@ -117,3 +117,67 @@ export const clearUserCartService = async (userId: string) => {
     const updatedCart = await saveCart(cart);
     return updatedCart.toObject();
 };
+
+export const saveItemForLaterService = async (userId: string, itemId: string) => {
+    const cart = await findCartByUserId(userId);
+    if (!cart) throw new Error("Cart not found");
+
+    if (!cart.savedForLater) {
+        (cart as Cart).savedForLater = [];
+    }
+
+    const item = cart.items.find((it: any) => {
+        if (it._id && typeof it._id === "object" && typeof (it._id as any).toString === "function") {
+            return (it._id as any).toString() === itemId;
+        }
+        return it._id === itemId;
+    });
+    if (!item) throw new Error("Item not found in cart");
+
+    (cart as any).savedForLater.push(item.toObject());
+    item.deleteOne();
+
+    // Recalculate total
+    cart.total = cart.items.reduce((sum: number, i: CartItem) => sum + i.subtotal, 0);
+
+    const updatedCart = await saveCart(cart);
+    return updatedCart.toObject();
+};
+
+export const moveItemBackToCartService = async (userId: string, itemId: string) => {
+    const cart = await findCartByUserId(userId);
+    if (!cart) throw new Error("Cart not found");
+
+    const savedItem = (cart.savedForLater || []).id(itemId);
+    if (!savedItem) throw new Error("Item not found in saved items");
+
+    // Check if same product + variant already exists in cart
+    const existingItem = cart.items.find(
+        (i: any) =>
+            i.product.toString() === savedItem.product.toString() &&
+            i.variant.color === savedItem.variant.color &&
+            i.variant.size === savedItem.variant.size
+    );
+
+    if (existingItem) {
+        // If already exists, just increase the quantity
+        existingItem.quantity += savedItem.quantity;
+        existingItem.subtotal =
+            ((existingItem.product as any)?.price ?? 0) * existingItem.quantity;
+    } else {
+        // Otherwise, move it back to cart
+        cart.items.push(savedItem.toObject());
+    }
+
+    // Remove from savedForLater
+    savedItem.deleteOne();
+
+    // Update total
+    cart.total = cart.items.reduce(
+        (sum: number, i: CartItem) => sum + i.subtotal,
+        0
+    );
+
+    const updatedCart = await saveCart(cart);
+    return updatedCart.toObject();
+};

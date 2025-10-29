@@ -6,6 +6,7 @@ export type Cart = {
     user: User;
     items: CartItem[];
     total: number;
+    savedForLater: CartItem[];
     createdAt: Date;
     updatedAt: Date;
 };

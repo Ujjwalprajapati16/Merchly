@@ -8,6 +8,7 @@ import {
   checkoutCart,
   saveForLater,
   updateQuantity,
+  moveToCart,
 } from "../controllers/cart-controller.ts";
 
 const cartRouter = express.Router();
@@ -30,7 +31,8 @@ cartRouter.delete("/", authenticate, clearCart);
 // Checkout
 cartRouter.post("/checkout", authenticate, checkoutCart);
 
-// Save item for later (optional feature)
+// Save item for later 
 cartRouter.post("/items/:itemId/save", authenticate, saveForLater);
+cartRouter.post("/items/:itemId/save/move", authenticate, moveToCart);
 
 export default cartRouter;
