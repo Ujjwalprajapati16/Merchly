@@ -7,7 +7,8 @@ export type address = {
     city: string,
     state: string,
     country: string,
-    pincode: string
+    pincode: string,
+    isPreferred?: boolean
 }
 
 export interface UpdateAddressDTO {
@@ -17,4 +18,5 @@ export interface UpdateAddressDTO {
   state?: string;
   country?: string;
   pincode?: string;
+  isPreferred?: boolean;
 }

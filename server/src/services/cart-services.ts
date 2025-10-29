@@ -3,6 +3,10 @@ import { findCartByUserId, createEmptyCart, saveCart } from "../repositories/car
 import { findProductById } from "../repositories/product-repo.ts";
 import type { Cart, CartItem } from "../types/Cart-types.ts";
 import type { Variant } from "../types/Product-types.ts";
+import { BadRequest } from "../middlewares/ErrorHandler.ts";
+import { getPreferredAddressByUserId } from "../repositories/address-repo.ts";
+import { createOrder } from "../repositories/order-repo.ts";
+import type { OrderType } from "../types/Order-types.ts";
 
 export const getCartByUserId = async (userId: string): Promise<Cart> => {
     let cart = await findCartByUserId(userId);
@@ -180,4 +184,43 @@ export const moveItemBackToCartService = async (userId: string, itemId: string) 
 
     const updatedCart = await saveCart(cart);
     return updatedCart.toObject();
+};
+
+export const checkoutCartService = async (userId: string) => {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const cart = await getCartByUserId(userId);
+    if (!cart || cart.items.length === 0) throw new BadRequest("Cart is empty");
+
+    const address = await getPreferredAddressByUserId(userId);
+    if (!address) throw new BadRequest("No preferred address found");
+
+    const total = cart.items.reduce((sum, item) => sum + item.subtotal, 0);
+
+    const orderData: Partial<OrderType> = {
+        userId: userObjectId,
+        products: cart.items.map((i) => ({
+            productId: new mongoose.Types.ObjectId(i.product.id),
+            quantity: i.quantity,
+            price: i.product.price,
+            subtotal: i.subtotal,
+        })),
+        total,
+        address: {
+            addressLine1: address.addressLine1,
+            addressLine2: address.addressLine2,
+            city: address.city,
+            state: address.state,
+            country: address.country,
+            pincode: address.pincode,
+        },
+        status: "received",
+        payment_status: "pending",
+    };
+
+    const order = await createOrder(orderData);
+
+    await clearUserCartService(userId);
+
+    return order;
 };

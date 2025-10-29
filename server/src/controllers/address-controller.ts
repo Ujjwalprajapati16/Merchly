@@ -1,11 +1,11 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { BadRequest, Unauthorized } from "../middlewares/ErrorHandler.ts";
-import { addAddressService, deleteAddressService, getAddressByIdService, getAddressService, updateAddressService } from "../services/address-services.ts";
+import { addAddressService, deleteAddressService, getAddressByIdService, getAddressService, getPreferredAddressService, updateAddressService } from "../services/address-services.ts";
 import type { UpdateAddressDTO } from "../types/Address-types.ts";
 
 export const addAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const { addressLine1, addressLine2, city, state, country, pincode } = req.body;
+    const { addressLine1, addressLine2, city, state, country, pincode, isPreferred } = req.body;
     const user = req.user;
 
     if (!addressLine1 || !city || !state || !country || !pincode) {
@@ -17,7 +17,7 @@ export const addAddress = async (req: AuthRequest, res: Response, next: NextFunc
     }
 
     try {
-        const address = await addAddressService(user.id, addressLine1, addressLine2, city, state, country, pincode);
+        const address = await addAddressService(user.id, addressLine1, addressLine2, city, state, country, pincode, isPreferred);
 
         return res.status(201).json({ message: "Address added successfully", address });
     } catch (error) {
@@ -46,7 +46,7 @@ export const getAddress = async (req: AuthRequest, res: Response, next: NextFunc
 
 export const updateAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const { addressLine1, addressLine2, city, state, country, pincode } = req.body;
+    const { addressLine1, addressLine2, city, state, country, pincode, isPreferred } = req.body;
     const user = req.user;
 
     if (!id) {
@@ -63,7 +63,8 @@ export const updateAddress = async (req: AuthRequest, res: Response, next: NextF
         city,
         state,
         country,
-        pincode
+        pincode,
+        isPreferred
     }
 
     try {
@@ -115,3 +116,30 @@ export const getAddressById = async (req: AuthRequest, res: Response, next: Next
         next(error);
     }
 }
+
+export const getPreferredAddress = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if(!userId) {
+      throw new Unauthorized("Don't have access!!");
+    }
+
+    const address = await getPreferredAddressService(userId);
+
+    if (!address) {
+      return res.status(404).json({ message: "No preferred address found" });
+    }
+
+    res.status(200).json({
+      message: "Preferred address fetched successfully",
+      address,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

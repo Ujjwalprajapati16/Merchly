@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import type { address } from "../types/Address-types.ts";
 
 const addressSchema = new mongoose.Schema<address>({
-    user : {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
@@ -29,6 +29,10 @@ const addressSchema = new mongoose.Schema<address>({
     pincode: {
         type: String,
         required: true,
+    },
+    isPreferred: {
+        type: Boolean,
+        default: false,
     },
 }, {
     timestamps: true

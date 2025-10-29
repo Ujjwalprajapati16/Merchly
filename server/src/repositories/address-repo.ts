@@ -22,3 +22,11 @@ export const updateAddress = async (id: string, address: address) => {
 export const deleteAddress = async (id: string) => {
     return await Address.findByIdAndDelete(id);
 }
+
+export const getPreferredAddressByUserId = async (userId: string) => {
+    return await Address.findOne({ user: userId, isPreferred: true });
+};
+
+export const unsetAllPreferredAddresses = async (userId: string) => {
+    await Address.updateMany({ user: userId }, { $set: { isPreferred: false } });
+};

@@ -1,15 +1,25 @@
 import { APIError, NotFound, Unauthorized } from "../middlewares/ErrorHandler.ts";
-import { createAddress, deleteAddress, getAddressById, getAddresses, updateAddress } from "../repositories/address-repo.ts";
+import { createAddress, deleteAddress, getAddressById, getAddresses, getPreferredAddressByUserId, unsetAllPreferredAddresses, updateAddress } from "../repositories/address-repo.ts";
 import { getUserById } from "../repositories/user-repo.ts";
 import type { address, UpdateAddressDTO } from "../types/Address-types.ts";
 import type { User } from "../types/User-types.ts";
 
-export const addAddressService = async (userId: string, addressLine1: string, addressLine2: string, city: string, state: string, country: string, pincode: string) => {
-
+export const addAddressService = async (
+    userId: string,
+    addressLine1: string,
+    addressLine2: string,
+    city: string,
+    state: string,
+    country: string,
+    pincode: string,
+    isPreferred: boolean = false
+) => {
     const user: User | null = await getUserById(userId);
+    if (!user) throw new APIError(404, "User not found");
 
-    if (!user) {
-        throw new APIError(404, "User not found");
+    // If this address is preferred, unset all others first
+    if (isPreferred) {
+        await unsetAllPreferredAddresses(userId);
     }
 
     const address: address = {
@@ -19,17 +29,15 @@ export const addAddressService = async (userId: string, addressLine1: string, ad
         city,
         state,
         country,
-        pincode
-    }
+        pincode,
+        isPreferred,
+    };
 
     const createdAddress = await createAddress(address);
-
-    if (!createdAddress) {
-        throw new APIError(500, "Address already exists");
-    }
+    if (!createdAddress) throw new APIError(500, "Failed to create address");
 
     return createdAddress;
-}
+};
 
 export const getAddressService = async (userId: string) => {
     return await getAddresses(userId);
@@ -40,6 +48,11 @@ export const updateAddressService = async (id: string, updateData: UpdateAddress
 
     if (!existingAddress) {
         throw new NotFound("Address not found");
+    }
+
+    // If setting this address as preferred, unset all others first
+    if (updateData.isPreferred) {
+        await unsetAllPreferredAddresses(existingAddress.user.toString());
     }
 
     Object.assign(existingAddress, updateData);
@@ -56,7 +69,7 @@ export const deleteAddressService = async (id: string, userId: string) => {
         throw new NotFound("Address not found");
     }
 
-    const addressUserId = address.user.toString(); 
+    const addressUserId = address.user.toString();
     if (addressUserId !== userId) {
         throw new Unauthorized("You are not allowed to delete this address");
     }
@@ -67,3 +80,7 @@ export const deleteAddressService = async (id: string, userId: string) => {
 export const getAddressByIdService = async (id: string) => {
     return await getAddressById(id);
 }
+
+export const getPreferredAddressService = async (userId: string) => {
+    return await getPreferredAddressByUserId(userId);
+};

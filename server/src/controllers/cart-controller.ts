@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
-import { addItemToCartService, clearUserCartService, getCartByUserId, moveItemBackToCartService, removeItemFromCartService, saveItemForLaterService, updateCartItemQuantity } from "../services/cart-services.ts";
+import { addItemToCartService, checkoutCartService, clearUserCartService, getCartByUserId, moveItemBackToCartService, removeItemFromCartService, saveItemForLaterService, updateCartItemQuantity } from "../services/cart-services.ts";
 
 export const getCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -111,9 +111,6 @@ export const clearCart = async (req: AuthRequest, res: Response, next: NextFunct
         next(error);
     }
 };
-export const checkoutCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    res.json({ message: "Cart checked out successfully" });
-};
 
 export const saveForLater = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -157,6 +154,21 @@ export const moveToCart = async (req: AuthRequest, res: Response, next: NextFunc
         res.status(200).json({
             message: "Product moved back to cart successfully",
             cart: updatedCart,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const checkoutCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user;
+        if (!user) throw new Error("Unauthorized");
+
+        const order = await checkoutCartService(user.id);
+        res.status(200).json({
+            message: "Order placed successfully",
+            order,
         });
     } catch (error) {
         next(error);
