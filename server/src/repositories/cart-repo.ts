@@ -6,7 +6,7 @@ export const findCartByUserId = async (userId: string) => {
         .populate({
             path: "items.product",
             model: productModel,
-            select: "name price slug variants category",
+            select: "name price slug category",
         })
         .exec();
 };

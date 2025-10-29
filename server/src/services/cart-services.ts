@@ -60,7 +60,7 @@ export const addItemToCartService = async (
 export const updateCartItemQuantity = async (userId: string, itemId: string, quantity: number) => {
     const cart = await findCartByUserId(userId);
     if (!cart) throw new Error("Cart not found");
-    
+
     const item = cart.items.find((it: any) => {
         if (it._id && typeof it._id === "object" && typeof (it._id as any).toString === "function") {
             return (it._id as any).toString() === itemId;
@@ -81,4 +81,39 @@ export const updateCartItemQuantity = async (userId: string, itemId: string, qua
 
     await cart.save();
     return cart;
+};
+
+export const removeItemFromCartService = async (userId: string, itemId: string) => {
+    const cart = await findCartByUserId(userId);
+    if (!cart) throw new Error("Cart not found");
+
+    const item = cart.items.find((it: any) => {
+        if (it._id && typeof it._id === "object" && typeof (it._id as any).toString === "function") {
+            return (it._id as any).toString() === itemId;
+        }
+        return it._id === itemId;
+    });
+    if (!item) throw new Error("Item not found in cart");
+
+    item.deleteOne(); // Mongoose subdocument removal
+
+    // Recalculate total
+    cart.total = cart.items.reduce(
+        (sum: number, i: CartItem) => sum + i.subtotal,
+        0
+    );
+
+    await cart.save();
+    return cart;
+};
+
+export const clearUserCartService = async (userId: string) => {
+    const cart = await findCartByUserId(userId);
+    if (!cart) throw new Error("Cart not found");
+
+    cart.items = [];
+    cart.total = 0;
+
+    const updatedCart = await saveCart(cart);
+    return updatedCart.toObject();
 };
