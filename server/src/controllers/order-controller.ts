@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
-import { buyNowService, cancelOrderService, getOrderByIdService, getUserOrdersService } from "../services/order-services.ts";
+import { buyNowService, cancelOrderService, getAllOrdersAdminService, getOrderByIdService, getUserOrdersService } from "../services/order-services.ts";
 import { Unauthorized } from "../middlewares/ErrorHandler.ts";
 
 export const buyNow = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -97,10 +97,25 @@ export const updatePaymentStatus = async (req: AuthRequest, res: Response, next:
 };
 
 export const getAllOrdersAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    res.json({
-        message: "All orders fetched successfully",
-    })
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        const { orders, totalOrders, totalPages } = await getAllOrdersAdminService(page, limit);
+
+        res.status(200).json({
+            message: "All orders fetched successfully",
+            currentPage: page,
+            totalPages,
+            totalOrders,
+            results: orders.length,
+            orders,
+        });
+    } catch (error) {
+        next(error);
+    }
 };
+
 
 export const updateOrderStatus = async (req: AuthRequest, res: Response, next: NextFunction) => {
     res.json({

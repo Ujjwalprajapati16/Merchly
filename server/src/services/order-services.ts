@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { BadRequest, NotFound } from "../middlewares/ErrorHandler.ts";
 import { getPreferredAddressByUserId } from "../repositories/address-repo.ts";
-import { cancelOrderById, createOrder, findOrderById, getOrdersByUserId } from "../repositories/order-repo.ts";
+import { cancelOrderById, createOrder, findOrderById, getAllOrdersAdminRepo, getOrdersByUserId } from "../repositories/order-repo.ts";
 import { findProductById } from "../repositories/product-repo.ts";
 
 
@@ -83,7 +83,6 @@ export const getUserOrdersService = async (userId: string, page: number, limit: 
     return { orders, totalOrders, totalPages };
 };
 
-
 export const getOrderByIdService = async (orderId: string) => {
     if (!orderId) throw new BadRequest("Order ID is required");
 
@@ -115,4 +114,12 @@ export const cancelOrderService = async (orderId: string, userId: string) => {
     // Cancel the order
     const cancelledOrder = await cancelOrderById(orderId);
     return cancelledOrder;
+};
+
+export const getAllOrdersAdminService = async (page: number, limit: number) => {
+    const skip = (page - 1) * limit;
+    const { orders, totalOrders } = await getAllOrdersAdminRepo(skip, limit);
+
+    const totalPages = Math.ceil(totalOrders / limit);
+    return { orders, totalOrders, totalPages };
 };

@@ -36,3 +36,17 @@ export const cancelOrderById = async (orderId: string) => {
 
   return order;
 };
+
+export const getAllOrdersAdminRepo = async (skip: number, limit: number) => {
+    const [orders, totalOrders] = await Promise.all([
+        Order.find({})
+            .populate("userId", "name email")
+            .populate("products.productId", "name price")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+        Order.countDocuments(),
+    ]);
+
+    return { orders, totalOrders };
+};
