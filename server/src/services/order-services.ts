@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { BadRequest } from "../middlewares/ErrorHandler.ts";
+import { BadRequest, NotFound } from "../middlewares/ErrorHandler.ts";
 import { getPreferredAddressByUserId } from "../repositories/address-repo.ts";
-import { createOrder, getOrdersByUserId } from "../repositories/order-repo.ts";
+import { createOrder, findOrderById, getOrdersByUserId } from "../repositories/order-repo.ts";
 import { findProductById } from "../repositories/product-repo.ts";
 
 
@@ -77,4 +77,13 @@ export const buyNowService = async (
 export const getUserOrdersService = async (userId: string) => {
     const orders = await getOrdersByUserId(userId);
     return orders;
+};
+
+export const getOrderByIdService = async (orderId: string) => {
+  if (!orderId) throw new BadRequest("Order ID is required");
+
+  const order = await findOrderById(orderId);
+  if (!order) throw new NotFound("Order not found");
+
+  return order;
 };

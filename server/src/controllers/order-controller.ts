@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
-import { buyNowService, getUserOrdersService } from "../services/order-services.ts";
+import { buyNowService, getOrderByIdService, getUserOrdersService } from "../services/order-services.ts";
 
 export const buyNow = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -38,9 +38,22 @@ export const getUserOrders = async (req: AuthRequest, res: Response, next: NextF
 };
 
 export const getOrderById = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    res.json({
-        message: "Order fetched successfully",
-    })
+    try {
+        const { orderId } = req.params;
+
+        if(!orderId) {
+            return res.status(400).json({ message: "Order ID is required" });
+        }
+
+        const order = await getOrderByIdService(orderId);
+
+        res.status(200).json({
+            message: "Order fetched successfully",
+            order,
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 export const cancelOrder = async (req: AuthRequest, res: Response, next: NextFunction) => {
