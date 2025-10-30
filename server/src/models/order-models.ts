@@ -8,11 +8,13 @@ const orderSchema = new mongoose.Schema<OrderType>(
             {
                 productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
                 quantity: { type: Number, required: true },
+                color: { type: String, required: true },
+                size: { type: String, required: true },
+                image: { type: String, required: true },
                 price: { type: Number, required: true },
                 subtotal: { type: Number, required: true },
             },
         ],
-        total: { type: Number, required: true },
         status: {
             type: String,
             enum: ["received", "out_for_delivery", "shipped", "delivered", "cancelled"],

@@ -189,23 +189,32 @@ export const moveItemBackToCartService = async (userId: string, itemId: string) 
 export const checkoutCartService = async (userId: string) => {
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
+    // 🛒 Fetch user's cart
     const cart = await getCartByUserId(userId);
     if (!cart || cart.items.length === 0) throw new BadRequest("Cart is empty");
 
+    // 📦 Get delivery address
     const address = await getPreferredAddressByUserId(userId);
     if (!address) throw new BadRequest("No preferred address found");
 
-    const total = cart.items.reduce((sum, item) => sum + item.subtotal, 0);
+    // 💰 Calculate totals
+    const totalAmount = cart.items.reduce((sum, item) => sum + item.subtotal, 0);
 
+    // 🧩 Build order data
     const orderData: Partial<OrderType> = {
         userId: userObjectId,
         products: cart.items.map((i) => ({
-            productId: new mongoose.Types.ObjectId(i.product.id),
+            productId: new mongoose.Types.ObjectId(i.product._id),
             quantity: i.quantity,
+            color: i.variant?.color || "N/A",
+            size: i.variant?.size || "N/A",
+            image: i.variant?.image || i.product.variants[0]?.image || "",
             price: i.product.price,
             subtotal: i.subtotal,
         })),
-        total,
+        total: totalAmount,
+        status: "received",
+        payment_status: "pending",
         address: {
             addressLine1: address.addressLine1,
             addressLine2: address.addressLine2,
@@ -214,12 +223,12 @@ export const checkoutCartService = async (userId: string) => {
             country: address.country,
             pincode: address.pincode,
         },
-        status: "received",
-        payment_status: "pending",
     };
 
+    // 🧾 Create order in DB
     const order = await createOrder(orderData);
 
+    // 🧹 Clear the user's cart
     await clearUserCartService(userId);
 
     return order;

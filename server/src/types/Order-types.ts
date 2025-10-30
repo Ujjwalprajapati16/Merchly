@@ -2,6 +2,9 @@ import type mongoose from "mongoose";
 
 type OrderProduct = {
     productId: mongoose.Types.ObjectId;
+    color: string;
+    size: string;
+    image: string;
     quantity: number;
     price: number;
     subtotal: number;

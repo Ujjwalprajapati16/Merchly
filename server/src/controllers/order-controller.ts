@@ -1,17 +1,19 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
-import { buyNowService } from "../services/order-services.ts";
+import { buyNowService, getUserOrdersService } from "../services/order-services.ts";
 
 export const buyNow = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-        const { productId, quantity } = req.body;
+        const { productId, quantity, color, size } = req.body;
         const userId = req.user?.id;
 
         if (!productId || !quantity) {
             return res.status(400).json({ message: "Product ID and quantity are required" });
         }
 
-        const order = await buyNowService(userId!, productId, quantity);
+        const selectedVariant = color && size ? { color, size } : undefined;
+        const order = await buyNowService(userId!, productId, quantity, selectedVariant);
+
         res.status(201).json({
             message: "Order placed successfully via Buy Now",
             order,
@@ -22,9 +24,17 @@ export const buyNow = async (req: AuthRequest, res: Response, next: NextFunction
 };
 
 export const getUserOrders = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    res.json({
-        message: "User orders fetched successfully",
-    });
+    try {
+        const userId = req.user?.id;
+        const orders = await getUserOrdersService(userId!);
+
+        res.status(200).json({
+            message: "User orders fetched successfully",
+            orders,
+        });
+    } catch (err) {
+        next(err);
+    }
 };
 
 export const getOrderById = async (req: AuthRequest, res: Response, next: NextFunction) => {

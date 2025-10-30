@@ -163,11 +163,14 @@ export const moveToCart = async (req: AuthRequest, res: Response, next: NextFunc
 export const checkoutCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const user = req.user;
-        if (!user) throw new Error("Unauthorized");
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
 
         const order = await checkoutCartService(user.id);
-        res.status(200).json({
-            message: "Order placed successfully",
+
+        res.status(201).json({
+            message: "Order placed successfully from cart",
             order,
         });
     } catch (error) {
