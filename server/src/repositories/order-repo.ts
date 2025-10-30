@@ -20,3 +20,13 @@ export const findOrderById = async (orderId: string) => {
 
   return order;
 };
+
+export const cancelOrderById = async (orderId: string) => {
+  const order = await Order.findById(orderId);
+  if (!order) return null;
+
+  order.status = "cancelled";
+  await order.save();
+
+  return order;
+};

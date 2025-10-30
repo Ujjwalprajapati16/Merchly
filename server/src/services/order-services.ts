@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { BadRequest, NotFound } from "../middlewares/ErrorHandler.ts";
 import { getPreferredAddressByUserId } from "../repositories/address-repo.ts";
-import { createOrder, findOrderById, getOrdersByUserId } from "../repositories/order-repo.ts";
+import { cancelOrderById, createOrder, findOrderById, getOrdersByUserId } from "../repositories/order-repo.ts";
 import { findProductById } from "../repositories/product-repo.ts";
 
 
@@ -86,4 +86,28 @@ export const getOrderByIdService = async (orderId: string) => {
   if (!order) throw new NotFound("Order not found");
 
   return order;
+};
+
+export const cancelOrderService = async (orderId: string, userId: string) => {
+  if (!orderId) throw new BadRequest("Order ID is required");
+
+  const order = await findOrderById(orderId);
+  if (!order) throw new NotFound("Order not found");
+
+  // Ensure user owns this order
+  if (order.userId._id.toString() !== userId.toString()) {
+    throw new BadRequest("You are not authorized to cancel this order");
+  }
+
+  // Prevent cancelling delivered or already-cancelled orders
+  if (order.status === "delivered") {
+    throw new BadRequest("Delivered orders cannot be cancelled");
+  }
+  if (order.status === "cancelled") {
+    throw new BadRequest("This order is already cancelled");
+  }
+
+  // Cancel the order
+  const cancelledOrder = await cancelOrderById(orderId);
+  return cancelledOrder;
 };

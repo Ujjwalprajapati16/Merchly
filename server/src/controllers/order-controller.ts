@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
-import { buyNowService, getOrderByIdService, getUserOrdersService } from "../services/order-services.ts";
+import { buyNowService, cancelOrderService, getOrderByIdService, getUserOrdersService } from "../services/order-services.ts";
 
 export const buyNow = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -41,7 +41,7 @@ export const getOrderById = async (req: AuthRequest, res: Response, next: NextFu
     try {
         const { orderId } = req.params;
 
-        if(!orderId) {
+        if (!orderId) {
             return res.status(400).json({ message: "Order ID is required" });
         }
 
@@ -57,9 +57,27 @@ export const getOrderById = async (req: AuthRequest, res: Response, next: NextFu
 };
 
 export const cancelOrder = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    res.json({
-        message: "Order cancelled successfully",
-    })
+    try {
+        const { orderId } = req.params;
+        const user = req.user;
+
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if(!orderId) {
+            return res.status(400).json({ message: "Order ID is required" });
+        }
+
+        const order = await cancelOrderService(orderId, user.id);
+
+        res.status(200).json({
+            message: "Order cancelled successfully",
+            order,
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 export const updatePaymentStatus = async (req: AuthRequest, res: Response, next: NextFunction) => {
