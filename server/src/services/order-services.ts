@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { BadRequest, NotFound } from "../middlewares/ErrorHandler.ts";
 import { getPreferredAddressByUserId } from "../repositories/address-repo.ts";
-import { cancelOrderById, createOrder, findOrderById, getAllOrdersAdminRepo, getOrdersByUserId } from "../repositories/order-repo.ts";
+import { cancelOrderById, createOrder, findOrderById, getAllOrdersAdminRepo, getOrdersByUserId, updateOrderStatusRepo } from "../repositories/order-repo.ts";
 import { findProductById } from "../repositories/product-repo.ts";
 
 
@@ -122,4 +122,10 @@ export const getAllOrdersAdminService = async (page: number, limit: number) => {
 
     const totalPages = Math.ceil(totalOrders / limit);
     return { orders, totalOrders, totalPages };
+};
+
+export const updateOrderStatusService = async (orderId: string, status: string) => {
+    const order = await updateOrderStatusRepo(orderId, status);
+    if (!order) throw new BadRequest("Order not found");
+    return order;
 };

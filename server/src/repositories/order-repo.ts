@@ -50,3 +50,13 @@ export const getAllOrdersAdminRepo = async (skip: number, limit: number) => {
 
     return { orders, totalOrders };
 };
+
+export const updateOrderStatusRepo = async (orderId: string, status: string) => {
+    return await Order.findByIdAndUpdate(
+        orderId,
+        { status },
+        { new: true }
+    )
+        .populate("userId", "name email")
+        .populate("products.productId", "name price");
+};

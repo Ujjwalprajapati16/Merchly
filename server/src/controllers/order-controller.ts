@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
-import { buyNowService, cancelOrderService, getAllOrdersAdminService, getOrderByIdService, getUserOrdersService } from "../services/order-services.ts";
+import { buyNowService, cancelOrderService, getAllOrdersAdminService, getOrderByIdService, getUserOrdersService, updateOrderStatusService } from "../services/order-services.ts";
 import { Unauthorized } from "../middlewares/ErrorHandler.ts";
 
 export const buyNow = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -91,6 +91,7 @@ export const cancelOrder = async (req: AuthRequest, res: Response, next: NextFun
 };
 
 export const updatePaymentStatus = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    // todo: complete that controller using the payment gatway
     res.json({
         message: "Payment status updated successfully",
     })
@@ -118,7 +119,26 @@ export const getAllOrdersAdmin = async (req: AuthRequest, res: Response, next: N
 
 
 export const updateOrderStatus = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    res.json({
-        message: "Order status updated successfully",
-    })
+    try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+
+        if (!orderId || !status) {
+            return res.status(400).json({ message: "Order ID and status are required" });
+        }
+
+        const validStatuses = ["received", "out_for_delivery", "shipped", "delivered", "cancelled"];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ message: "Invalid order status" });
+        }
+
+        const updatedOrder = await updateOrderStatusService(orderId, status);
+
+        res.status(200).json({
+            message: "Order status updated successfully",
+            order: updatedOrder,
+        });
+    } catch (error) {
+        next(error);
+    }
 };
