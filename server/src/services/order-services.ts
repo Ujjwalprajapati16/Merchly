@@ -24,7 +24,7 @@ export const buyNowService = async (
         variant = product.variants[0]; // default fallback
     }
 
-    if(!variant){
+    if (!variant) {
         throw new BadRequest("Selected variant not found for this product");
     }
 
@@ -74,40 +74,45 @@ export const buyNowService = async (
     return order;
 };
 
-export const getUserOrdersService = async (userId: string) => {
-    const orders = await getOrdersByUserId(userId);
-    return orders;
+export const getUserOrdersService = async (userId: string, page: number, limit: number) => {
+    const skip = (page - 1) * limit;
+    const { orders, totalOrders } = await getOrdersByUserId(userId, skip, limit);
+
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    return { orders, totalOrders, totalPages };
 };
 
+
 export const getOrderByIdService = async (orderId: string) => {
-  if (!orderId) throw new BadRequest("Order ID is required");
+    if (!orderId) throw new BadRequest("Order ID is required");
 
-  const order = await findOrderById(orderId);
-  if (!order) throw new NotFound("Order not found");
+    const order = await findOrderById(orderId);
+    if (!order) throw new NotFound("Order not found");
 
-  return order;
+    return order;
 };
 
 export const cancelOrderService = async (orderId: string, userId: string) => {
-  if (!orderId) throw new BadRequest("Order ID is required");
+    if (!orderId) throw new BadRequest("Order ID is required");
 
-  const order = await findOrderById(orderId);
-  if (!order) throw new NotFound("Order not found");
+    const order = await findOrderById(orderId);
+    if (!order) throw new NotFound("Order not found");
 
-  // Ensure user owns this order
-  if (order.userId._id.toString() !== userId.toString()) {
-    throw new BadRequest("You are not authorized to cancel this order");
-  }
+    // Ensure user owns this order
+    if (order.userId._id.toString() !== userId.toString()) {
+        throw new BadRequest("You are not authorized to cancel this order");
+    }
 
-  // Prevent cancelling delivered or already-cancelled orders
-  if (order.status === "delivered") {
-    throw new BadRequest("Delivered orders cannot be cancelled");
-  }
-  if (order.status === "cancelled") {
-    throw new BadRequest("This order is already cancelled");
-  }
+    // Prevent cancelling delivered or already-cancelled orders
+    if (order.status === "delivered") {
+        throw new BadRequest("Delivered orders cannot be cancelled");
+    }
+    if (order.status === "cancelled") {
+        throw new BadRequest("This order is already cancelled");
+    }
 
-  // Cancel the order
-  const cancelledOrder = await cancelOrderById(orderId);
-  return cancelledOrder;
+    // Cancel the order
+    const cancelledOrder = await cancelOrderById(orderId);
+    return cancelledOrder;
 };

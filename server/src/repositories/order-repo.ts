@@ -6,11 +6,17 @@ export const createOrder = async (orderData: Partial<OrderType>) => {
   return await order.save();
 };
 
-export const getOrdersByUserId = async (userId: string) => {
-  return await Order.find({ userId })
-    .populate("products.productId", "name price")
-    .populate("address")
-    .sort({ createdAt: -1 });
+export const getOrdersByUserId = async (userId: string, skip: number, limit: number) => {
+  const [orders, totalOrders] = await Promise.all([
+    Order.find({ userId })
+      .populate("products.productId", "name price")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Order.countDocuments({ userId }),
+  ]);
+
+  return { orders, totalOrders };
 };
 
 export const findOrderById = async (orderId: string) => {

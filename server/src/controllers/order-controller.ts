@@ -1,6 +1,7 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { buyNowService, cancelOrderService, getOrderByIdService, getUserOrdersService } from "../services/order-services.ts";
+import { Unauthorized } from "../middlewares/ErrorHandler.ts";
 
 export const buyNow = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -26,10 +27,19 @@ export const buyNow = async (req: AuthRequest, res: Response, next: NextFunction
 export const getUserOrders = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const userId = req.user?.id;
-        const orders = await getUserOrdersService(userId!);
+        if (!userId) throw new Unauthorized("User not authorized");
+
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        const { orders, totalOrders, totalPages } = await getUserOrdersService(userId, page, limit);
 
         res.status(200).json({
             message: "User orders fetched successfully",
+            currentPage: page,
+            totalPages,
+            totalOrders,
+            results: orders.length,
             orders,
         });
     } catch (err) {
@@ -65,7 +75,7 @@ export const cancelOrder = async (req: AuthRequest, res: Response, next: NextFun
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        if(!orderId) {
+        if (!orderId) {
             return res.status(400).json({ message: "Order ID is required" });
         }
 
