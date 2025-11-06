@@ -134,3 +134,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* ✅ Fully hide scrollbar across all browsers */
+.no-scrollbar {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* Internet Explorer and Edge */
+  overflow-y: scroll;           /* ensure scroll but invisible */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* ✅ Smooth scrolling everywhere */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}

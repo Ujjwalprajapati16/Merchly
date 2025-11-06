@@ -8,7 +8,9 @@ import { OrderType } from "@/types/orderTypes";
 
 export default function OrderCard({ order }: { order: OrderType }) {
   const router = useRouter();
-  const product = order.products[0];
+
+  const products = order.products;
+  const firstProduct = products[0];
 
   const statusMap: Record<string, string> = {
     received: "bg-yellow-100 text-yellow-700",
@@ -18,6 +20,9 @@ export default function OrderCard({ order }: { order: OrderType }) {
     cancelled: "bg-red-100 text-red-700",
   };
 
+  const totalAmount = products.reduce((sum, p) => sum + p.subtotal, 0);
+  const totalItems = products.reduce((sum, p) => sum + p.quantity, 0);
+
   return (
     <Card
       onClick={() => router.push(`/orders/${order._id}`)}
@@ -26,26 +31,32 @@ export default function OrderCard({ order }: { order: OrderType }) {
       {/* ✅ Left Image */}
       <div className="w-full md:w-36 flex justify-center md:justify-start">
         <Image
-          src={product?.image || "/placeholder.png"}
-          alt={product?.productId?.name || "Product"}
+          src={firstProduct?.image || "/placeholder.png"}
+          alt={firstProduct?.productId?.name || "Product"}
           width={150}
           height={150}
           className="rounded-md object-cover h-[150px] w-[150px]"
         />
       </div>
 
-      {/* ✅ Right Details Section */}
+      {/* ✅ Right Section */}
       <div className="flex flex-col justify-between w-full">
-        <CardHeader className="p-0">
-          <h2 className="font-semibold text-lg">{product?.productId?.name}</h2>
+
+        {/* ✅ Title = Order ID */}
+        <CardHeader className="p-0 space-y-1">
+          <h2 className="font-semibold text-lg">
+            Order #{order._id}
+          </h2>
+
           <p className="text-sm text-gray-500">
             Ordered on {new Date(order.createdAt).toLocaleDateString()}
           </p>
         </CardHeader>
 
         <CardContent className="p-0 mt-2 space-y-3">
+
           {/* ✅ Status Badges */}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Badge className={statusMap[order.status] || ""}>
               {order.status.replace(/_/g, " ")}
             </Badge>
@@ -61,23 +72,23 @@ export default function OrderCard({ order }: { order: OrderType }) {
             >
               {order.payment_status}
             </Badge>
+
+            {/* ✅ Items Count */}
+            <Badge variant="secondary">{totalItems} items</Badge>
           </div>
 
           {/* ✅ Order Info */}
           <div className="text-sm text-gray-600 space-y-1">
             <p>
-              <span className="font-medium">Total:</span> ₹
-              {order.products.reduce((sum, p) => sum + p.subtotal, 0)}
+              <span className="font-medium">Total:</span> ₹{totalAmount}
             </p>
-            <p>
-              <span className="font-medium">Items:</span>{" "}
-              {order.products.length}
-            </p>
+
             <p className="truncate">
               <span className="font-medium">Deliver to:</span>{" "}
               {order.address.addressLine1}, {order.address.city}
             </p>
           </div>
+
         </CardContent>
       </div>
     </Card>
