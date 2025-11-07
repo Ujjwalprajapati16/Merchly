@@ -47,7 +47,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
                     {uniqueColors.map((color) => {
                         const variant = product.variants.find((v) => v.color === color)!;
                         return (
-                            <button
+                            <Button
                                 key={color}
                                 className={`px-3 py-1 border rounded-lg text-sm transition 
                   ${selectedVariant.color === color
@@ -57,7 +57,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
                                 onClick={() => setSelectedVariant(variant)}
                             >
                                 {color}
-                            </button>
+                            </Button>
                         );
                     })}
                 </div>
@@ -70,7 +70,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
                     {uniqueSizes.map((size) => {
                         const variant = product.variants.find((v) => v.size === size)!;
                         return (
-                            <button
+                            <Button
                                 key={size}
                                 className={`px-3 py-1 border rounded-lg text-sm transition 
                   ${selectedVariant.size === size
@@ -80,7 +80,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
                                 onClick={() => setSelectedVariant(variant)}
                             >
                                 {size}
-                            </button>
+                            </Button>
                         );
                     })}
                 </div>
@@ -88,7 +88,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
 
             {/* Actions */}
             <div className="flex gap-4">
-                <AddToCartButton />
+                <AddToCartButton productId={product._id} variant={selectedVariant} />
                 <Button onClick={addWishlist} variant="outline">
                     Add to Wishlist
                 </Button>

@@ -1,3 +1,5 @@
+import { Variant } from "./productTypes";
+
 export type CartItem = {
   _id: string;
   product: {
@@ -22,4 +24,10 @@ export type Cart = {
   savedForLater: any[];
   createdAt: string;
   updatedAt: string;
+}
+
+export type AddToCart = {
+  productId: string;
+  // quantity: number;
+  variant: Variant;
 }
