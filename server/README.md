@@ -15,6 +15,8 @@ Merchly Server is the backend API for the Merchly e-commerce platform, designed 
 - **Layered Architecture**: Separation of concerns with controllers, services, repositories, and models
 - **Address Management**: Complete CRUD operations for user address management
 - **Product Management**: Complete product CRUD with categories, variants, pagination, and admin controls
+- **Shopping Cart**: Full-featured cart system with save-for-later functionality
+- **Order Management**: Complete order processing with status tracking and admin controls
 - **Image Upload**: Cloudinary integration for product image storage and management
 - **CORS Support**: Cross-Origin Resource Sharing enabled for frontend integration
 - **Environment Configuration**: Secure configuration management with dotenv
@@ -117,7 +119,9 @@ server/
 │   ├── controllers/           # Request handlers
 │   │   ├── auth-controller.ts # Authentication endpoints
 │   │   ├── address-controller.ts # Address management
-│   │   └── product-controller.ts # Product management
+│   │   ├── product-controller.ts # Product management
+│   │   ├── cart-controller.ts # Shopping cart management
+│   │   └── order-controller.ts # Order processing
 │   ├── middlewares/           # Custom middleware
 │   │   ├── AuthMiddleware.ts  # JWT authentication
 │   │   ├── ErrorHandler.ts    # Error handling classes
@@ -126,23 +130,33 @@ server/
 │   ├── models/                # Database models (Mongoose schemas)
 │   │   ├── user-model.ts      # User model
 │   │   ├── address-model.ts   # Address model
-│   │   └── product-model.ts   # Product model
+│   │   ├── product-model.ts   # Product model
+│   │   ├── cart-models.ts     # Shopping cart model
+│   │   └── order-models.ts    # Order model
 │   ├── repositories/          # Data access layer
 │   │   ├── user-repo.ts       # User data operations
 │   │   ├── address-repo.ts    # Address data operations
-│   │   └── product-repo.ts    # Product data operations
+│   │   ├── product-repo.ts    # Product data operations
+│   │   ├── cart-repo.ts       # Cart data operations
+│   │   └── order-repo.ts      # Order data operations
 │   ├── routes/                # API routes
 │   │   ├── auth-routes.ts     # Authentication routes
 │   │   ├── address-routes.ts  # Address management routes
-│   │   └── product-routes.ts  # Product management routes
+│   │   ├── product-routes.ts  # Product management routes
+│   │   ├── cart-routes.ts     # Shopping cart routes
+│   │   └── order-routes.ts    # Order management routes
 │   ├── services/              # Business logic layer
 │   │   ├── auth-services.ts   # Authentication business logic
 │   │   ├── address-services.ts # Address business logic
-│   │   └── product-services.ts # Product business logic
+│   │   ├── product-services.ts # Product business logic
+│   │   ├── cart-services.ts   # Cart business logic
+│   │   └── order-services.ts  # Order business logic
 │   ├── types/                 # TypeScript type definitions
 │   │   ├── User-types.ts      # User-related types
 │   │   ├── Address-types.ts   # Address-related types
 │   │   ├── Product-types.ts   # Product-related types
+│   │   ├── Cart-types.ts      # Cart-related types
+│   │   ├── Order-types.ts     # Order-related types
 │   │   └── AuthRequest.ts     # Extended request type
 │   ├── utils/
 │   │   ├── connectDB.ts       # MongoDB connection utility
@@ -256,11 +270,12 @@ Content-Type: application/json
 ```json
 {
   "addressLine1": "123 Main Street",
-  "addressLine2": "Apartment 4B", // optional
+  "addressLine2": "Apartment 4B",
   "city": "New York",
   "state": "NY",
   "country": "USA",
-  "pincode": "10001"
+  "pincode": "10001",
+  "isPreferred": false
 }
 ```
 
@@ -276,6 +291,7 @@ Content-Type: application/json
     "state": "NY",
     "country": "USA",
     "pincode": "10001",
+    "isPreferred": false,
     "userId": "507f1f77bcf86cd799439011"
   }
 }
@@ -386,6 +402,33 @@ Authorization: Bearer <jwt_token>
   "message": "Address deleted successfully",
   "result": {
     "deletedCount": 1
+  }
+}
+```
+
+### Get Preferred Address
+**GET** `/api/v1/address/preferred`
+
+Retrieve the user's preferred address.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Preferred address fetched successfully",
+  "address": {
+    "id": "507f1f77bcf86cd799439012",
+    "addressLine1": "123 Main Street",
+    "addressLine2": "Apartment 4B",
+    "city": "New York",
+    "state": "NY",
+    "country": "USA",
+    "pincode": "10001",
+    "isPreferred": true
   }
 }
 ```
@@ -670,6 +713,613 @@ Authorization: Bearer <jwt_token>
 - `403 Forbidden` - Admin access required
 - `404 Not Found` - Product not found
 
+## 🛒 Shopping Cart API
+**Base Path**: `/api/v1/cart`
+
+> **Note:** All cart endpoints require authentication. Include `Authorization: Bearer <token>` header.
+
+### Get Cart
+**GET** `/api/v1/cart/`
+
+Retrieve the current user's shopping cart.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Cart fetched successfully",
+  "cart": {
+    "_id": "507f1f77bcf86cd799439013",
+    "user": "507f1f77bcf86cd799439011",
+    "items": [
+      {
+        "_id": "507f1f77bcf86cd799439014",
+        "product": {
+          "_id": "507f1f77bcf86cd799439015",
+          "name": "Cool T-Shirt",
+          "price": 29.99
+        },
+        "variant": {
+          "color": "red",
+          "size": "M",
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg"
+        },
+        "quantity": 2,
+        "subtotal": 59.98
+      }
+    ],
+    "total": 59.98,
+    "savedForLater": [],
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T12:45:00Z"
+  }
+}
+```
+
+### Add to Cart
+**POST** `/api/v1/cart/items`
+
+Add a product to the shopping cart.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "productId": "507f1f77bcf86cd799439015",
+  "variant": {
+    "color": "red",
+    "size": "M",
+    "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg"
+  },
+  "quantity": 1
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Product added to cart successfully",
+  "cart": {
+    "_id": "507f1f77bcf86cd799439013",
+    "user": "507f1f77bcf86cd799439011",
+    "items": [
+      {
+        "_id": "507f1f77bcf86cd799439014",
+        "product": "507f1f77bcf86cd799439015",
+        "variant": {
+          "color": "red",
+          "size": "M",
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg"
+        },
+        "quantity": 1,
+        "subtotal": 29.99
+      }
+    ],
+    "total": 29.99,
+    "savedForLater": []
+  }
+}
+```
+
+### Update Quantity
+**PUT** `/api/v1/cart/items/:itemId`
+
+Update the quantity of a cart item.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "quantity": 3
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Cart updated successfully",
+  "cart": {
+    "_id": "507f1f77bcf86cd799439013",
+    "items": [
+      {
+        "_id": "507f1f77bcf86cd799439014",
+        "quantity": 3,
+        "subtotal": 89.97
+      }
+    ],
+    "total": 89.97
+  }
+}
+```
+
+### Remove from Cart
+**DELETE** `/api/v1/cart/items/:itemId`
+
+Remove a specific item from the cart.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Product removed from cart successfully",
+  "cart": {
+    "_id": "507f1f77bcf86cd799439013",
+    "items": [],
+    "total": 0,
+    "savedForLater": []
+  }
+}
+```
+
+### Clear Cart
+**DELETE** `/api/v1/cart/`
+
+Remove all items from the cart.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Cart cleared successfully",
+  "cart": {
+    "_id": "507f1f77bcf86cd799439013",
+    "items": [],
+    "total": 0,
+    "savedForLater": []
+  }
+}
+```
+
+### Save for Later
+**POST** `/api/v1/cart/items/:itemId/save`
+
+Move an item from cart to "Save for Later" list.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Product saved for later successfully",
+  "cart": {
+    "_id": "507f1f77bcf86cd799439013",
+    "items": [],
+    "total": 0,
+    "savedForLater": [
+      {
+        "_id": "507f1f77bcf86cd799439014",
+        "product": "507f1f77bcf86cd799439015",
+        "variant": {
+          "color": "red",
+          "size": "M",
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg"
+        },
+        "quantity": 1,
+        "subtotal": 29.99
+      }
+    ]
+  }
+}
+```
+
+### Move to Cart
+**POST** `/api/v1/cart/items/:itemId/save/move`
+
+Move an item from "Save for Later" back to cart.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Product moved back to cart successfully",
+  "cart": {
+    "_id": "507f1f77bcf86cd799439013",
+    "items": [
+      {
+        "_id": "507f1f77bcf86cd799439014",
+        "product": "507f1f77bcf86cd799439015",
+        "variant": {
+          "color": "red",
+          "size": "M",
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg"
+        },
+        "quantity": 1,
+        "subtotal": 29.99
+      }
+    ],
+    "total": 29.99,
+    "savedForLater": []
+  }
+}
+```
+
+### Checkout Cart
+**POST** `/api/v1/cart/checkout`
+
+Create an order from the current cart items.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (201):**
+```json
+{
+  "message": "Order placed successfully from cart",
+  "order": {
+    "_id": "507f1f77bcf86cd799439020",
+    "userId": "507f1f77bcf86cd799439011",
+    "products": [
+      {
+        "productId": "507f1f77bcf86cd799439015",
+        "color": "red",
+        "size": "M",
+        "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg",
+        "quantity": 1,
+        "price": 29.99,
+        "subtotal": 29.99
+      }
+    ],
+    "total": 29.99,
+    "status": "received",
+    "payment_status": "pending",
+    "address": {
+      "addressLine1": "123 Main Street",
+      "addressLine2": "Apartment 4B",
+      "city": "New York",
+      "state": "NY",
+      "country": "USA",
+      "pincode": "10001"
+    },
+    "createdAt": "2024-01-15T14:30:00Z",
+    "updatedAt": "2024-01-15T14:30:00Z"
+  }
+}
+```
+
+## 📦 Order Management API
+**Base Path**: `/api/v1/order`
+
+> **Note:** All order endpoints require authentication. Include `Authorization: Bearer <token>` header.
+
+### Buy Now
+**POST** `/api/v1/order/buy-now`
+
+Create an order directly without adding to cart (quick purchase).
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "productId": "507f1f77bcf86cd799439015",
+  "quantity": 1,
+  "color": "red",
+  "size": "M"
+}
+```
+
+**Response (201):**
+```json
+{
+  "message": "Order placed successfully via Buy Now",
+  "order": {
+    "_id": "507f1f77bcf86cd799439021",
+    "userId": "507f1f77bcf86cd799439011",
+    "products": [
+      {
+        "productId": "507f1f77bcf86cd799439015",
+        "color": "red",
+        "size": "M",
+        "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg",
+        "quantity": 1,
+        "price": 29.99,
+        "subtotal": 29.99
+      }
+    ],
+    "total": 29.99,
+    "status": "received",
+    "payment_status": "pending",
+    "address": {
+      "addressLine1": "123 Main Street",
+      "addressLine2": "Apartment 4B",
+      "city": "New York",
+      "state": "NY",
+      "country": "USA",
+      "pincode": "10001"
+    },
+    "createdAt": "2024-01-15T15:00:00Z",
+    "updatedAt": "2024-01-15T15:00:00Z"
+  }
+}
+```
+
+### Get User Orders
+**GET** `/api/v1/order/`
+
+Retrieve all orders for the authenticated user with pagination.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Number of orders per page (default: 10)
+
+**Example Request:**
+```
+GET /api/v1/order/?page=1&limit=10
+```
+
+**Response (200):**
+```json
+{
+  "message": "User orders fetched successfully",
+  "currentPage": 1,
+  "totalPages": 3,
+  "totalOrders": 25,
+  "results": 10,
+  "orders": [
+    {
+      "_id": "507f1f77bcf86cd799439021",
+      "userId": "507f1f77bcf86cd799439011",
+      "products": [
+        {
+          "productId": "507f1f77bcf86cd799439015",
+          "color": "red",
+          "size": "M",
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg",
+          "quantity": 1,
+          "price": 29.99,
+          "subtotal": 29.99
+        }
+      ],
+      "total": 29.99,
+      "status": "delivered",
+      "payment_status": "success",
+      "address": {
+        "addressLine1": "123 Main Street",
+        "addressLine2": "Apartment 4B",
+        "city": "New York",
+        "state": "NY",
+        "country": "USA",
+        "pincode": "10001"
+      },
+      "createdAt": "2024-01-10T10:00:00Z",
+      "updatedAt": "2024-01-15T16:30:00Z"
+    }
+  ]
+}
+```
+
+### Get Order by ID
+**GET** `/api/v1/order/:orderId`
+
+Retrieve details of a specific order.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Order fetched successfully",
+  "order": {
+    "_id": "507f1f77bcf86cd799439021",
+    "userId": "507f1f77bcf86cd799439011",
+    "products": [
+      {
+        "productId": "507f1f77bcf86cd799439015",
+        "color": "red",
+        "size": "M",
+        "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg",
+        "quantity": 1,
+        "price": 29.99,
+        "subtotal": 29.99
+      }
+    ],
+    "total": 29.99,
+    "status": "shipped",
+    "payment_status": "success",
+    "paymentId": "pay_1234567890",
+    "address": {
+      "addressLine1": "123 Main Street",
+      "addressLine2": "Apartment 4B",
+      "city": "New York",
+      "state": "NY",
+      "country": "USA",
+      "pincode": "10001"
+    },
+    "createdAt": "2024-01-15T15:00:00Z",
+    "updatedAt": "2024-01-16T10:00:00Z"
+  }
+}
+```
+
+### Cancel Order
+**PATCH** `/api/v1/order/:orderId/cancel`
+
+Cancel an existing order (user can only cancel their own orders).
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Order cancelled successfully",
+  "order": {
+    "_id": "507f1f77bcf86cd799439021",
+    "status": "cancelled",
+    "updatedAt": "2024-01-16T14:20:00Z"
+  }
+}
+```
+
+### Update Payment Status
+**PATCH** `/api/v1/order/:orderId/payment`
+
+Update the payment status of an order (to be integrated with payment gateway).
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**Note:** This endpoint is currently a placeholder for payment gateway integration.
+
+**Response (200):**
+```json
+{
+  "message": "Payment status updated successfully"
+}
+```
+
+### Get All Orders (Admin Only)
+**GET** `/api/v1/order/admin/all`
+
+Retrieve all orders in the system with pagination (admin only).
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Number of orders per page (default: 10)
+
+**Example Request:**
+```
+GET /api/v1/order/admin/all?page=1&limit=20
+```
+
+**Response (200):**
+```json
+{
+  "message": "All orders fetched successfully",
+  "currentPage": 1,
+  "totalPages": 5,
+  "totalOrders": 100,
+  "results": 20,
+  "orders": [
+    {
+      "_id": "507f1f77bcf86cd799439021",
+      "userId": "507f1f77bcf86cd799439011",
+      "products": [
+        {
+          "productId": "507f1f77bcf86cd799439015",
+          "color": "red",
+          "size": "M",
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg",
+          "quantity": 1,
+          "price": 29.99,
+          "subtotal": 29.99
+        }
+      ],
+      "total": 29.99,
+      "status": "delivered",
+      "payment_status": "success",
+      "address": {
+        "addressLine1": "123 Main Street",
+        "addressLine2": "Apartment 4B",
+        "city": "New York",
+        "state": "NY",
+        "country": "USA",
+        "pincode": "10001"
+      },
+      "createdAt": "2024-01-10T10:00:00Z",
+      "updatedAt": "2024-01-15T16:30:00Z"
+    }
+  ]
+}
+```
+
+### Update Order Status (Admin Only)
+**PATCH** `/api/v1/order/:orderId/status`
+
+Update the status of an order (admin only).
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "status": "shipped"
+}
+```
+
+**Valid Status Values:**
+- `received` - Order has been received
+- `out_for_delivery` - Order is out for delivery
+- `shipped` - Order has been shipped
+- `delivered` - Order has been delivered
+- `cancelled` - Order has been cancelled
+
+**Response (200):**
+```json
+{
+  "message": "Order status updated successfully",
+  "order": {
+    "_id": "507f1f77bcf86cd799439021",
+    "userId": "507f1f77bcf86cd799439011",
+    "status": "shipped",
+    "updatedAt": "2024-01-16T10:00:00Z"
+  }
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid status or missing fields
+- `401 Unauthorized` - Invalid or missing token
+- `403 Forbidden` - Admin access required
+- `404 Not Found` - Order not found
+
 ## 🔒 Authentication & Authorization
 
 ### JWT Token Usage
@@ -690,8 +1340,10 @@ Authorization: Bearer <your_jwt_token>
 ### Protected Routes Summary
 | Endpoint | Authentication | Authorization |
 |----------|---------------|---------------|
+| **Authentication** |
 | `POST /api/v1/auth/register` | ❌ | ❌ |
 | `POST /api/v1/auth/login` | ❌ | ❌ |
+| **Products** |
 | `GET /api/v1/product/` | ❌ | ❌ |
 | `GET /api/v1/product/:slug` | ❌ | ❌ |
 | `GET /api/v1/product/categories` | ❌ | ❌ |
@@ -699,7 +1351,18 @@ Authorization: Bearer <your_jwt_token>
 | `POST /api/v1/product/add` | ✅ | Admin only |
 | `PUT /api/v1/product/update/:id` | ✅ | Admin only |
 | `DELETE /api/v1/product/delete/:id` | ✅ | Admin only |
+| **Address** |
 | All `/api/v1/address/*` | ✅ | User/Admin |
+| **Shopping Cart** |
+| All `/api/v1/cart/*` | ✅ | User/Admin |
+| **Orders** |
+| `POST /api/v1/order/buy-now` | ✅ | User/Admin |
+| `GET /api/v1/order/` | ✅ | User/Admin |
+| `GET /api/v1/order/:orderId` | ✅ | User/Admin |
+| `PATCH /api/v1/order/:orderId/cancel` | ✅ | User/Admin |
+| `PATCH /api/v1/order/:orderId/payment` | ✅ | User/Admin |
+| `GET /api/v1/order/admin/all` | ✅ | Admin only |
+| `PATCH /api/v1/order/:orderId/status` | ✅ | Admin only |
 
 ## 🗄️ Database
 
@@ -741,11 +1404,27 @@ Development environment provides detailed error information, while production en
   - Role-based authorization (user/admin)
 - **Address Management**: Full CRUD operations for user addresses
   - Add, view, update, and delete addresses
+  - Preferred address functionality
   - User-specific address management with authentication
-- **Product Management**: Core product operations
+- **Product Management**: Complete product operations
   - Product listing with pagination
   - Product retrieval by slug
-  - Admin-only product creation with variants support
+  - Category-based filtering
+  - Admin-only product CRUD with variants support
+  - Cloudinary image upload for product variants
+- **Shopping Cart**: Full-featured cart system
+  - Add, update, and remove items
+  - Save for later functionality
+  - Move items between cart and saved list
+  - Cart checkout to create orders
+  - Automatic subtotal and total calculation
+- **Order Management**: Complete order processing system
+  - Buy now (direct purchase) functionality
+  - Order history with pagination
+  - Order status tracking (received, shipped, delivered, cancelled)
+  - Payment status tracking (pending, success, failed)
+  - User order cancellation
+  - Admin order management with status updates
 - **Security Features**: 
   - CORS configuration for cross-origin requests
   - Environment-based configuration management
@@ -754,42 +1433,40 @@ Development environment provides detailed error information, while production en
 - **API Documentation**: Complete REST API documentation with examples
 
 ### In Progress 🔄
-- **Product Management**: 
-  - Get single product by slug implementation (controller exists but not fully implemented)
-  - Product update and delete operations
-  - Product image upload functionality
+- **Payment Integration**:
+  - Payment gateway integration (Stripe/PayPal/Razorpay)
+  - Payment status webhook handling
 - **Enhanced Features**:
   - Input validation middleware
   - Rate limiting implementation
+  - Product stock/inventory management
 
 ### Planned 📝
-- **E-commerce Core**:
-  - Shopping cart management
-  - Order processing system
-  - Payment gateway integration (Stripe/PayPal)
-  - Inventory management
 - **User Features**:
   - User profile management
   - Password reset functionality
   - Email verification system
-  - Order history and tracking
+  - Email notifications for orders
 - **Admin Features**:
   - Admin dashboard APIs
   - User management endpoints
   - Sales analytics and reporting
   - Product analytics
+  - Inventory management dashboard
 - **Advanced Features**:
-  - Search and filtering system
+  - Advanced search and filtering system
   - Product reviews and ratings
   - Wishlist functionality
-  - Notification system
-  - File upload handling for product images
+  - Real-time order tracking
+  - Coupon and discount system
+  - Notification system (email/SMS)
 - **DevOps & Quality**:
-  - Testing suite implementation (Jest/Supertest)
+  - Comprehensive testing suite (Jest/Supertest)
   - API documentation with Swagger/OpenAPI
   - Docker containerization
   - CI/CD pipeline setup
   - Performance monitoring and logging
+  - Database indexing optimization
 
 ## 🤝 Contributing
 
