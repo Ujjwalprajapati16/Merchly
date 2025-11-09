@@ -14,7 +14,7 @@ export function SavedItem({ item, onMoveToCart, onRemove }: any) {
             <div className="flex flex-col flex-1">
                 <h2 className="text-lg font-semibold">{item.product.name}</h2>
                 <p className="text-sm text-gray-500">Color: {item.variant.color} | Size: {item.variant.size}</p>
-                <p className="font-medium mt-1">₹{item.product.price}</p>
+                <p className="font-medium mt-1">₹{item.subtotal}</p>
             </div>
 
 

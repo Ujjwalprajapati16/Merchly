@@ -1,4 +1,4 @@
-import { addToCart, getCart, updateCartQuantity } from "@/services/cart-service";
+import { addToCart, checkoutCart, clearCart, getCart, moveToCart, removeFromCart, saveForLater, updateCartQuantity } from "@/services/cart-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -37,7 +37,81 @@ export const useUpdateCartQuantity = () => {
     // ✅ refetch cart after success
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
-      toast.success("Quantity updated");
+    },
+  });
+};
+
+// ✅ Remove Item
+export const useRemoveFromCart = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["remove-from-cart"],
+    mutationFn: (itemId: string) => removeFromCart(itemId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Item removed");
+    },
+  });
+};
+
+// ✅ Clear Cart
+export const useClearCart = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["clear-cart"],
+    mutationFn: clearCart,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Cart cleared");
+    },
+  });
+};
+
+// ✅ Save For Later
+export const useSaveForLater = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["save-for-later"],
+    mutationFn: (itemId: string) => saveForLater(itemId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Saved for later");
+    },
+  });
+};
+
+// ✅ Move item back to cart
+export const useMoveToCart = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["move-to-cart"],
+    mutationFn: (itemId: string) => moveToCart(itemId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Moved back to cart");
+    },
+  });
+};
+
+// ✅ Checkout
+export const useCheckoutCart = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["checkout-cart"],
+    mutationFn: checkoutCart,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Order placed");
     },
   });
 };

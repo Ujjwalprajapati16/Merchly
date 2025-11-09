@@ -6,6 +6,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/productTypes";
+import AddToCartButton from "./AddToCartButton";
 
 interface ProductCardProps {
   product: Product;
@@ -18,7 +19,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Image Section */}
         <div className="relative w-full aspect-square bg-muted/10 overflow-hidden">
           <Image
-            src={product.variants?.[0]?.image || "/images/placeholder.png"}
+            src={product.variants?.[0]?.image as string || "/images/placeholder.png"}
             alt={product.name}
             fill
             className="object-contain transition-transform duration-300 group-hover:scale-105"
@@ -42,14 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           <p className="text-sm text-muted-foreground">₹{product.price}</p>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 mt-2"
-            onClick={(e) => e.preventDefault()}
-          >
-            <FaShoppingCart className="w-4 h-4" /> Add to Cart
-          </Button>
+          <AddToCartButton productId={product._id} variant={product.variants?.[0]} />
         </CardContent>
       </Card>
 

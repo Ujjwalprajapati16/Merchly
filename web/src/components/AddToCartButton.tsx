@@ -20,7 +20,9 @@ export default function AddToCartButton({ productId, variant }: AddToCart) {
   const isPending = adding || updating;
 
   // ✅ Add item to cart
-  const handleAdd = () => {
+  const handleAdd = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     addItem(
       { productId, quantity: 1, variant },
       {
@@ -37,7 +39,6 @@ export default function AddToCartButton({ productId, variant }: AddToCart) {
 
           if (created) setItemId(created._id);
 
-          toast.success("Added to cart");
         },
         onError: () => toast.error("Failed to add to cart"),
       }
@@ -45,7 +46,9 @@ export default function AddToCartButton({ productId, variant }: AddToCart) {
   };
 
   // ✅ Increase item quantity
-  const handleIncrement = () => {
+  const handleIncrement = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!itemId) return;
 
     const newQty = count + 1;
@@ -61,7 +64,9 @@ export default function AddToCartButton({ productId, variant }: AddToCart) {
   };
 
   // ✅ Decrease item quantity
-  const handleDecrement = () => {
+  const handleDecrement = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!itemId) return;
 
     if (count <= 1) {
