@@ -15,7 +15,7 @@ export default function OrderDetailsSection({ order }: any) {
       
       {/* ✅ Header */}
       <div>
-        <h1 className="text-2xl font-bold">Order #{order._id}</h1>
+        <h1 className="text-2xl font-bold">Order #{order.orderId}</h1>
         <p className="text-sm text-gray-500">
           Ordered on {new Date(order.createdAt).toLocaleDateString()}
         </p>

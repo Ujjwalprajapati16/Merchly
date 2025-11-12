@@ -45,7 +45,7 @@ export default function OrderCard({ order }: { order: OrderType }) {
         {/* ✅ Title = Order ID */}
         <CardHeader className="p-0 space-y-1">
           <h2 className="font-semibold text-lg">
-            Order #{order._id}
+            Order #{order.orderId}
           </h2>
 
           <p className="text-sm text-gray-500">

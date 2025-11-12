@@ -27,7 +27,8 @@ export type OrderType = {
         state: string;
         country: string;
         pincode: string;
-    }
+    };
+    orderId: string;
     createdAt: Date;
     updatedAt: Date;
 }
