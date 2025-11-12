@@ -111,7 +111,7 @@ export const useCheckoutCart = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
-      toast.success("Order placed");
+      toast.success("Order placed successfully!");
     },
   });
 };
