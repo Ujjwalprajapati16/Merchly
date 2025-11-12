@@ -1,7 +1,7 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { BadRequest, Unauthorized } from "../middlewares/ErrorHandler.ts";
-import { addAddressService, deleteAddressService, getAddressByIdService, getAddressService, getPreferredAddressService, updateAddressService } from "../services/address-services.ts";
+import { addAddressService, deleteAddressService, getAddressByIdService, getAddressService, getPreferredAddressService, setPreferredAddressService, updateAddressService } from "../services/address-services.ts";
 import type { UpdateAddressDTO } from "../types/Address-types.ts";
 
 export const addAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -96,7 +96,7 @@ export const deleteAddress = async (req: AuthRequest, res: Response, next: NextF
     }
 }
 
-export const getAddressById = async (req: AuthRequest, res: Response, next: NextFunction) => { 
+export const getAddressById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
     if (!id) {
@@ -118,28 +118,52 @@ export const getAddressById = async (req: AuthRequest, res: Response, next: Next
 }
 
 export const getPreferredAddress = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
 ) => {
-  try {
-    const userId = req.user?.id;
+    try {
+        const userId = req.user?.id;
 
-    if(!userId) {
-      throw new Unauthorized("Don't have access!!");
+        if (!userId) {
+            throw new Unauthorized("Don't have access!!");
+        }
+
+        const address = await getPreferredAddressService(userId);
+
+        if (!address) {
+            return res.status(404).json({ message: "No preferred address found" });
+        }
+
+        res.status(200).json({
+            message: "Preferred address fetched successfully",
+            address,
+        });
+    } catch (error) {
+        next(error);
     }
+};
 
-    const address = await getPreferredAddressService(userId);
+export const setPreferredAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const userId = req.user?.id;
+        const { id } = req.params;
 
-    if (!address) {
-      return res.status(404).json({ message: "No preferred address found" });
+        if (!userId) {
+            throw new Unauthorized("Don't have access!!");
+        }
+
+        if (!id) {
+            throw new BadRequest("Address ID is required");
+        }
+
+        const address = await setPreferredAddressService(userId, id);
+
+        res.status(200).json({
+            message: "Preferred address set successfully",
+            address,
+        });
+    } catch (error) {
+        next(error);
     }
-
-    res.status(200).json({
-      message: "Preferred address fetched successfully",
-      address,
-    });
-  } catch (error) {
-    next(error);
-  }
 };

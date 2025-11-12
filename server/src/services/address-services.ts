@@ -84,3 +84,19 @@ export const getAddressByIdService = async (id: string) => {
 export const getPreferredAddressService = async (userId: string) => {
     return await getPreferredAddressByUserId(userId);
 };
+
+export const setPreferredAddressService = async (userId: string, addressId: string) => {
+    const address = await getAddressById(addressId);
+    if (!address) {
+        throw new NotFound("Address not found");
+    }
+
+    const addressUserId = address.user.toString();
+    if (addressUserId !== userId) {
+        throw new Unauthorized("You are not allowed to set this address as preferred address");
+    }
+
+    await unsetAllPreferredAddresses(userId);
+    address.isPreferred = true;
+    return await updateAddress(addressId, address);
+};
