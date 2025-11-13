@@ -27,3 +27,7 @@ export const getUserDetailWithAddresses = async (id: string) => {
     addresses,
   };
 };
+
+export const changePasswordById = async (id: string, password: string) => {
+    return await userModel.updateOne({ _id: id }, { $set: { password } });
+};
