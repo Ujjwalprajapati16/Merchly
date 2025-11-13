@@ -1,7 +1,7 @@
 import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.ts";
 import { Unauthorized } from "../middlewares/ErrorHandler.ts";
-import { changePasswordService, getProfileService } from "../services/user-services.ts";
+import { changePasswordService, getProfileService, getUsersService } from "../services/user-services.ts";
 
 export const userProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const id = req.user?.id;
@@ -29,6 +29,15 @@ export const changePassword = async (req: AuthRequest, res: Response, next: Next
     try {
         await changePasswordService(id, currentPassword, newPassword);
         res.status(200).json({ message: "Password changed successfully!"});
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getUsers = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const users = await getUsersService();
+        res.status(200).json({ message: "Users fetched successfully", users});
     } catch (error) {
         next(error);
     }

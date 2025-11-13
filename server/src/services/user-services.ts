@@ -1,5 +1,5 @@
 import userModel from "../models/user-model.ts";
-import { changePasswordById, getUserById, getUserDetailWithAddresses } from "../repositories/user-repo.ts";
+import { changePasswordById, getUserById, getUserDetailWithAddresses, getUsersForAdmin } from "../repositories/user-repo.ts";
 import bcrypt from 'bcrypt';
 
 export const getProfileService = async (id : string) => {
@@ -16,4 +16,8 @@ export const changePasswordService = async (id: string, currentPassword: string,
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await changePasswordById(id, hashedPassword);
+}
+
+export const getUsersService = async () => {
+    return await getUsersForAdmin();
 }
