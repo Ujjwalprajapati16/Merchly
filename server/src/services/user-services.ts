@@ -1,8 +1,8 @@
 import userModel from "../models/user-model.ts";
-import { changePasswordById, getUserById, getUserDetailWithAddresses, getUsersForAdmin } from "../repositories/user-repo.ts";
+import { changePasswordById, deleteUserById, getUserById, getUserDetailWithAddresses, getUsersForAdmin, updateUserInfo } from "../repositories/user-repo.ts";
 import bcrypt from 'bcrypt';
 
-export const getProfileService = async (id : string) => {
+export const getProfileService = async (id: string) => {
     return await getUserDetailWithAddresses(id);
 }
 
@@ -20,4 +20,23 @@ export const changePasswordService = async (id: string, currentPassword: string,
 
 export const getUsersService = async () => {
     return await getUsersForAdmin();
+}
+
+export const updateProfileService = async (
+    id: string,
+    name?: string,
+    email?: string
+) => {
+    const updateData: any = {};
+
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+
+    if (Object.keys(updateData).length === 0) return;
+
+    return await updateUserInfo(id, updateData);
+};
+
+export const deleteUserService = async (id: string) => {
+    return await deleteUserById(id);
 }

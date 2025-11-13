@@ -81,3 +81,15 @@ export const getUsersForAdmin = async () => {
     },
   ]);
 };
+
+export const deleteUserById = async (id: string) => {
+  return await userModel.deleteOne({ _id: id });
+};
+
+export const updateUserInfo = async (id: string, data: any) => {
+  return await userModel.findByIdAndUpdate(
+    { _id: id },
+    { $set: data },
+    { new: true }
+  );
+};
