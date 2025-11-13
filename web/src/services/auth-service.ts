@@ -6,7 +6,10 @@ export const getToken = () => localStorage.getItem("token");
 export const removeToken = () => localStorage.removeItem("token");
 
 export const isAuthenticated = () => !!getToken();
-export const logout = () => removeToken();
+export const logout = () => {
+    removeToken();
+    window.location.href = "/";
+};
 
 export const signUp = async (data: SignUpData) => {
     const res = await api.post("/auth/register", data, {
