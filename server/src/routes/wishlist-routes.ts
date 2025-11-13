@@ -1,0 +1,15 @@
+import express from "express";
+import { authenticate } from "../middlewares/AuthMiddleware.ts";
+import {
+  getWishlist,
+  addToWishlist,
+  removeFromWishlist
+} from "../controllers/wishlist-controller.ts";
+
+const WishListRouter = express.Router();
+
+WishListRouter.get("/", authenticate, getWishlist);
+WishListRouter.post("/add", authenticate, addToWishlist);
+WishListRouter.delete("/remove/:itemId", authenticate, removeFromWishlist);
+
+export default WishListRouter;
