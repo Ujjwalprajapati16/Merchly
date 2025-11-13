@@ -13,10 +13,12 @@ Merchly Server is the backend API for the Merchly e-commerce platform, designed 
 - **Role-based Authorization**: User and admin role management for secure access control
 - **RESTful API Design**: Clean and intuitive API endpoints following REST conventions
 - **Layered Architecture**: Separation of concerns with controllers, services, repositories, and models
-- **Address Management**: Complete CRUD operations for user address management
+- **Address Management**: Complete CRUD operations for user address management with preferred address
 - **Product Management**: Complete product CRUD with categories, variants, pagination, and admin controls
 - **Shopping Cart**: Full-featured cart system with save-for-later functionality
-- **Order Management**: Complete order processing with status tracking and admin controls
+- **Order Management**: Complete order processing with auto-generated order IDs and status tracking
+- **User Profile**: User profile management with password change functionality
+- **Wishlist**: Add products to wishlist for later purchase
 - **Image Upload**: Cloudinary integration for product image storage and management
 - **CORS Support**: Cross-Origin Resource Sharing enabled for frontend integration
 - **Environment Configuration**: Secure configuration management with dotenv
@@ -121,7 +123,9 @@ server/
 │   │   ├── address-controller.ts # Address management
 │   │   ├── product-controller.ts # Product management
 │   │   ├── cart-controller.ts # Shopping cart management
-│   │   └── order-controller.ts # Order processing
+│   │   ├── order-controller.ts # Order processing
+│   │   ├── user-controller.ts # User profile management
+│   │   └── wishlist-controller.ts # Wishlist management
 │   ├── middlewares/           # Custom middleware
 │   │   ├── AuthMiddleware.ts  # JWT authentication
 │   │   ├── ErrorHandler.ts    # Error handling classes
@@ -132,31 +136,38 @@ server/
 │   │   ├── address-model.ts   # Address model
 │   │   ├── product-model.ts   # Product model
 │   │   ├── cart-models.ts     # Shopping cart model
-│   │   └── order-models.ts    # Order model
+│   │   ├── order-models.ts    # Order model with auto-generated orderId
+│   │   └── wishlist-model.ts  # Wishlist model
 │   ├── repositories/          # Data access layer
 │   │   ├── user-repo.ts       # User data operations
 │   │   ├── address-repo.ts    # Address data operations
 │   │   ├── product-repo.ts    # Product data operations
 │   │   ├── cart-repo.ts       # Cart data operations
-│   │   └── order-repo.ts      # Order data operations
+│   │   ├── order-repo.ts      # Order data operations
+│   │   └── wishlist-repo.ts   # Wishlist data operations
 │   ├── routes/                # API routes
 │   │   ├── auth-routes.ts     # Authentication routes
 │   │   ├── address-routes.ts  # Address management routes
 │   │   ├── product-routes.ts  # Product management routes
 │   │   ├── cart-routes.ts     # Shopping cart routes
-│   │   └── order-routes.ts    # Order management routes
+│   │   ├── order-routes.ts    # Order management routes
+│   │   ├── user-routes.ts     # User profile routes
+│   │   └── wishlist-routes.ts # Wishlist routes
 │   ├── services/              # Business logic layer
 │   │   ├── auth-services.ts   # Authentication business logic
 │   │   ├── address-services.ts # Address business logic
 │   │   ├── product-services.ts # Product business logic
 │   │   ├── cart-services.ts   # Cart business logic
-│   │   └── order-services.ts  # Order business logic
+│   │   ├── order-services.ts  # Order business logic
+│   │   ├── user-services.ts   # User profile business logic
+│   │   └── wishlist-service.ts # Wishlist business logic
 │   ├── types/                 # TypeScript type definitions
 │   │   ├── User-types.ts      # User-related types
 │   │   ├── Address-types.ts   # Address-related types
 │   │   ├── Product-types.ts   # Product-related types
 │   │   ├── Cart-types.ts      # Cart-related types
 │   │   ├── Order-types.ts     # Order-related types
+│   │   ├── Wishlist-types.ts  # Wishlist-related types
 │   │   └── AuthRequest.ts     # Extended request type
 │   ├── utils/
 │   │   ├── connectDB.ts       # MongoDB connection utility
@@ -420,6 +431,33 @@ Authorization: Bearer <jwt_token>
 ```json
 {
   "message": "Preferred address fetched successfully",
+  "address": {
+    "id": "507f1f77bcf86cd799439012",
+    "addressLine1": "123 Main Street",
+    "addressLine2": "Apartment 4B",
+    "city": "New York",
+    "state": "NY",
+    "country": "USA",
+    "pincode": "10001",
+    "isPreferred": true
+  }
+}
+```
+
+### Set Preferred Address
+**PATCH** `/api/v1/address/preferred/:id`
+
+Set a specific address as the preferred address (automatically unsets other preferred addresses).
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Preferred address set successfully",
   "address": {
     "id": "507f1f77bcf86cd799439012",
     "addressLine1": "123 Main Street",
@@ -978,6 +1016,7 @@ Authorization: Bearer <jwt_token>
   "message": "Order placed successfully from cart",
   "order": {
     "_id": "507f1f77bcf86cd799439020",
+    "orderId": "ORD-20240115-143000-XY4Z",
     "userId": "507f1f77bcf86cd799439011",
     "products": [
       {
@@ -1039,6 +1078,7 @@ Content-Type: application/json
   "message": "Order placed successfully via Buy Now",
   "order": {
     "_id": "507f1f77bcf86cd799439021",
+    "orderId": "ORD-20240115-150000-AB5C",
     "userId": "507f1f77bcf86cd799439011",
     "products": [
       {
@@ -1098,6 +1138,7 @@ GET /api/v1/order/?page=1&limit=10
   "orders": [
     {
       "_id": "507f1f77bcf86cd799439021",
+      "orderId": "ORD-20240110-100000-CD6D",
       "userId": "507f1f77bcf86cd799439011",
       "products": [
         {
@@ -1144,6 +1185,7 @@ Authorization: Bearer <jwt_token>
   "message": "Order fetched successfully",
   "order": {
     "_id": "507f1f77bcf86cd799439021",
+    "orderId": "ORD-20240115-150000-AB5C",
     "userId": "507f1f77bcf86cd799439011",
     "products": [
       {
@@ -1190,6 +1232,7 @@ Authorization: Bearer <jwt_token>
   "message": "Order cancelled successfully",
   "order": {
     "_id": "507f1f77bcf86cd799439021",
+    "orderId": "ORD-20240115-150000-AB5C",
     "status": "cancelled",
     "updatedAt": "2024-01-16T14:20:00Z"
   }
@@ -1246,6 +1289,7 @@ GET /api/v1/order/admin/all?page=1&limit=20
   "orders": [
     {
       "_id": "507f1f77bcf86cd799439021",
+      "orderId": "ORD-20240110-100000-CD6D",
       "userId": "507f1f77bcf86cd799439011",
       "products": [
         {
@@ -1307,6 +1351,7 @@ Content-Type: application/json
   "message": "Order status updated successfully",
   "order": {
     "_id": "507f1f77bcf86cd799439021",
+    "orderId": "ORD-20240115-150000-AB5C",
     "userId": "507f1f77bcf86cd799439011",
     "status": "shipped",
     "updatedAt": "2024-01-16T10:00:00Z"
@@ -1319,6 +1364,260 @@ Content-Type: application/json
 - `401 Unauthorized` - Invalid or missing token
 - `403 Forbidden` - Admin access required
 - `404 Not Found` - Order not found
+
+## 👤 User Profile API
+**Base Path**: `/api/v1/user`
+
+> **Note:** All user endpoints require authentication. Include `Authorization: Bearer <token>` header.
+
+### Get User Profile
+**GET** `/api/v1/user/profile`
+
+Retrieve the authenticated user's profile information.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "User profile fetched successfully",
+  "profile": {
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "role": "user",
+    "createdAt": "2024-01-10T10:00:00Z",
+    "updatedAt": "2024-01-15T14:30:00Z"
+  }
+}
+```
+
+### Update User Profile
+**PATCH** `/api/v1/user/update`
+
+Update the authenticated user's profile information.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "John Updated Doe",
+  "email": "john.updated@example.com"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Profile updated successfully!",
+  "profile": {
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "John Updated Doe",
+    "email": "john.updated@example.com",
+    "role": "user",
+    "updatedAt": "2024-01-16T10:30:00Z"
+  }
+}
+```
+
+### Change Password
+**PATCH** `/api/v1/user/change-password`
+
+Change the authenticated user's password.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "currentPassword": "oldPassword123",
+  "newPassword": "newSecurePassword456"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Password changed successfully!"
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Missing required fields
+- `401 Unauthorized` - Invalid current password or missing token
+
+### Get All Users (Admin Only)
+**GET** `/api/v1/user/`
+
+Retrieve all users in the system with their preferred address (admin only).
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Users fetched successfully",
+  "users": [
+    {
+      "_id": "507f1f77bcf86cd799439011",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "role": "user",
+      "preferredAddress": {
+        "_id": "507f1f77bcf86cd799439012",
+        "addressLine1": "123 Main Street",
+        "city": "New York",
+        "state": "NY",
+        "country": "USA",
+        "pincode": "10001"
+      },
+      "createdAt": "2024-01-10T10:00:00Z"
+    }
+  ]
+}
+```
+
+### Delete User (Admin Only)
+**DELETE** `/api/v1/user/:id`
+
+Delete a user from the system (admin only).
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "User deleted successfully!"
+}
+```
+
+**Error Responses:**
+- `401 Unauthorized` - Invalid or missing token
+- `403 Forbidden` - Admin access required
+- `404 Not Found` - User not found
+
+## ❤️ Wishlist API
+**Base Path**: `/api/v1/wishlist`
+
+> **Note:** All wishlist endpoints require authentication. Include `Authorization: Bearer <token>` header.
+
+### Get Wishlist
+**GET** `/api/v1/wishlist/`
+
+Retrieve the authenticated user's wishlist.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Wishlist fetched",
+  "wishlist": {
+    "_id": "507f1f77bcf86cd799439030",
+    "user": "507f1f77bcf86cd799439011",
+    "items": [
+      {
+        "_id": "507f1f77bcf86cd799439031",
+        "productId": "507f1f77bcf86cd799439015",
+        "addedAt": "2024-01-15T10:30:00Z"
+      },
+      {
+        "_id": "507f1f77bcf86cd799439032",
+        "productId": "507f1f77bcf86cd799439016",
+        "addedAt": "2024-01-16T12:00:00Z"
+      }
+    ],
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-16T12:00:00Z"
+  }
+}
+```
+
+### Add to Wishlist
+**POST** `/api/v1/wishlist/add`
+
+Add a product to the user's wishlist.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "productId": "507f1f77bcf86cd799439015"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Product added to wishlist",
+  "wishlist": {
+    "_id": "507f1f77bcf86cd799439030",
+    "user": "507f1f77bcf86cd799439011",
+    "items": [
+      {
+        "_id": "507f1f77bcf86cd799439031",
+        "productId": "507f1f77bcf86cd799439015",
+        "addedAt": "2024-01-15T10:30:00Z"
+      }
+    ],
+    "updatedAt": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Remove from Wishlist
+**DELETE** `/api/v1/wishlist/remove/:itemId`
+
+Remove a product from the user's wishlist.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Product removed from wishlist",
+  "wishlist": {
+    "_id": "507f1f77bcf86cd799439030",
+    "user": "507f1f77bcf86cd799439011",
+    "items": [],
+    "updatedAt": "2024-01-16T14:20:00Z"
+  }
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Missing productId or itemId
+- `401 Unauthorized` - Invalid or missing token
+- `404 Not Found` - Wishlist or item not found
 
 ## 🔒 Authentication & Authorization
 
@@ -1363,6 +1662,16 @@ Authorization: Bearer <your_jwt_token>
 | `PATCH /api/v1/order/:orderId/payment` | ✅ | User/Admin |
 | `GET /api/v1/order/admin/all` | ✅ | Admin only |
 | `PATCH /api/v1/order/:orderId/status` | ✅ | Admin only |
+| **User Profile** |
+| `GET /api/v1/user/profile` | ✅ | User/Admin |
+| `PATCH /api/v1/user/update` | ✅ | User/Admin |
+| `PATCH /api/v1/user/change-password` | ✅ | User/Admin |
+| `GET /api/v1/user/` | ✅ | Admin only |
+| `DELETE /api/v1/user/:id` | ✅ | Admin only |
+| **Wishlist** |
+| `GET /api/v1/wishlist/` | ✅ | User/Admin |
+| `POST /api/v1/wishlist/add` | ✅ | User/Admin |
+| `DELETE /api/v1/wishlist/remove/:itemId` | ✅ | User/Admin |
 
 ## 🗄️ Database
 
@@ -1419,12 +1728,21 @@ Development environment provides detailed error information, while production en
   - Cart checkout to create orders
   - Automatic subtotal and total calculation
 - **Order Management**: Complete order processing system
+  - Auto-generated unique order IDs (ORD-YYYYMMDD-HHMMSS-XXXX format)
   - Buy now (direct purchase) functionality
   - Order history with pagination
   - Order status tracking (received, shipped, delivered, cancelled)
   - Payment status tracking (pending, success, failed)
   - User order cancellation
   - Admin order management with status updates
+- **User Profile Management**: Complete user profile operations
+  - View and update profile information
+  - Change password functionality
+  - Admin user management with user listing and deletion
+- **Wishlist**: Wishlist functionality
+  - Add products to wishlist
+  - View wishlist items
+  - Remove items from wishlist
 - **Security Features**: 
   - CORS configuration for cross-origin requests
   - Environment-based configuration management
@@ -1443,10 +1761,10 @@ Development environment provides detailed error information, while production en
 
 ### Planned 📝
 - **User Features**:
-  - User profile management
-  - Password reset functionality
+  - Password reset functionality (forgot password)
   - Email verification system
   - Email notifications for orders
+  - Two-factor authentication (2FA)
 - **Admin Features**:
   - Admin dashboard APIs
   - User management endpoints
@@ -1456,10 +1774,10 @@ Development environment provides detailed error information, while production en
 - **Advanced Features**:
   - Advanced search and filtering system
   - Product reviews and ratings
-  - Wishlist functionality
   - Real-time order tracking
   - Coupon and discount system
   - Notification system (email/SMS)
+  - Product recommendations
 - **DevOps & Quality**:
   - Comprehensive testing suite (Jest/Supertest)
   - API documentation with Swagger/OpenAPI
