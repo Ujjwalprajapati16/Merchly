@@ -7,6 +7,7 @@ import addressRouter from "./routes/address-routes.ts";
 import productRouter from "./routes/product-routes.ts";
 import cartRouter from "./routes/cart-routes.ts";
 import orderRouter from "./routes/order-routes.ts";
+import UserRouter from "./routes/user-routes.ts";
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api/v1/address", addressRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/user", UserRouter);
 
 // Root route
 app.use("/", (req, res) => {
