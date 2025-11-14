@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, getProductById, getProductsByCategory, getCategories } from "@/services/product-service";
+import { categories } from "@/types/productTypes.js";
 
 export const useProducts = (page = 1, limit = 6) => {
   return useQuery({
@@ -25,7 +26,7 @@ export const useProductsByCategory = (category: string, page = 1) => {
 };
 
 export const useProductCategories = () => {
-  return useQuery({
+  return useQuery<categories[]>({
     queryKey: ["productCategories"],
     queryFn: () => getCategories(),
   });

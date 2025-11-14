@@ -13,7 +13,7 @@ export function ProductDetailsWrapper({ product }: ProductDetailsWrapperProps) {
   return (
     <>
       <ProductCarousel
-        images={product.variants.map((v) => v.image)}
+        images={product.variants.map((v) => v.image) as string[]}
         variants={product.variants}
         selectedVariant={selectedVariant}
         onVariantChange={setSelectedVariant}

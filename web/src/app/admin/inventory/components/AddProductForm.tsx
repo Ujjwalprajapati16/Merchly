@@ -25,13 +25,13 @@ export const productSchema = z.object({
     price: z
         .string()
         .regex(/^\d+(\.\d{1,2})?$/, "Price must be a valid number")
-        .transform(Number),
+        .min(1, "Price is required"),
     description: z.string().optional(),
     category: z.string().min(1, "Category is required"),
     variants: z.array(variantSchema).min(1, "At least one variant is required"),
 });
 
-export type ProductFormData = z.infer<typeof productSchema>;
+export type ProductFormData = z.input<typeof productSchema>;
 
 interface AddEditProductFormProps {
     onClose: () => void;
@@ -50,7 +50,7 @@ export function AddEditProductForm({ onClose, product, isEdit = false }: AddEdit
         resolver: zodResolver(productSchema),
         defaultValues: {
             name: product?.name || "",
-            price: product?.price?.toString() || "",
+            price: product?.price?.toString() ?? "",
             description: product?.description || "",
             category: product?.category || "",
             variants: product?.variants?.map((v: any) => ({
@@ -163,8 +163,8 @@ export function AddEditProductForm({ onClose, product, isEdit = false }: AddEdit
                 className="w-full mt-3"
                 disabled={isLoading}
             >
-                {isEdit ? 
-                    isLoading ? <><Spinner /> Updating...</> : "Update Product" : 
+                {isEdit ?
+                    isLoading ? <><Spinner /> Updating...</> : "Update Product" :
                     isLoading ? <><Spinner /> Adding...</> : "Add Product"}
             </Button>
         </form>

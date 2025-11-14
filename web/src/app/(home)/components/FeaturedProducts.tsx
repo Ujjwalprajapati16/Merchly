@@ -71,7 +71,7 @@ const FeaturedProducts = () => {
                 <div className="relative aspect-square overflow-hidden bg-muted/10">
                   <Image
                     src={
-                      product?.variants?.[0]?.image || "/images/placeholder.png"
+                      product?.variants?.[0]?.image as string || "/images/placeholder.png"
                     }
                     alt={product.name}
                     fill
@@ -88,11 +88,21 @@ const FeaturedProducts = () => {
                 {/* Product Details */}
                 <CardContent className="p-5 flex flex-col items-center text-center space-y-2">
                   <h3 className="font-medium text-lg">{product.name}</h3>
+
                   <p className="text-sm text-muted-foreground truncate w-5/6">
                     ₹{product.price}
                   </p>
-                  <AddToCartButton />
+
+                  <AddToCartButton
+                    productId={product._id}
+                    variant={{
+                      color: product?.variants?.[0]?.color,
+                      size: product?.variants?.[0]?.size,
+                      image: product?.variants?.[0]?.image,
+                    }}
+                  />
                 </CardContent>
+
               </Card>
             </motion.div>
           ))}

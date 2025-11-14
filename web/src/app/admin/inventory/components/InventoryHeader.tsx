@@ -27,7 +27,6 @@ interface InventoryHeaderProps {
 export default function InventoryHeader({
     filterCategory,
     setFilterCategory,
-    onAddProduct,
 }: InventoryHeaderProps) {
     const { data, isLoading, isError } = useProductCategories();
 

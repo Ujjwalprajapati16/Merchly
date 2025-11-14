@@ -43,7 +43,7 @@ export default function ProductRow({ product }: { product: Product }) {
       <TableRow>
         <TableCell>
           <Image
-            src={mainImage}
+            src={mainImage as string}
             alt={product.name}
             width={40}
             height={40}
