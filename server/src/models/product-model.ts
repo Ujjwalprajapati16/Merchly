@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import type { Product } from "../types/Product-types.ts";
+import type { Product } from "../types/Product-types";
 
 const variantSchema = new mongoose.Schema(
   {

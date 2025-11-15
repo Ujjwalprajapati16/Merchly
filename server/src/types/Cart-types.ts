@@ -1,5 +1,5 @@
-import type { Product, Variant } from "./Product-types.ts";
-import type { User } from "./User-types.ts";
+import type { Product, Variant } from "./Product-types";
+import type { User } from "./User-types";
 
 export type Cart = {
     _id: string;

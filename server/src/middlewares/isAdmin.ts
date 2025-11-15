@@ -1,6 +1,6 @@
 import type { Response, NextFunction } from "express";
-import { Unauthorized } from "./ErrorHandler.ts";
-import type { AuthRequest } from "../types/AuthRequest.ts";
+import { Unauthorized } from "./ErrorHandler";
+import type { AuthRequest } from "../types/AuthRequest";
 
 
 export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
-import type { RegisterUser, User } from '../types/User-types.ts';
-import { createNewUser, getUserByEmail } from '../repositories/user-repo.ts';
-import { APIError, NotFound, Unauthorized } from '../middlewares/ErrorHandler.ts';
+import type { RegisterUser, User } from '../types/User-types';
+import { createNewUser, getUserByEmail } from '../repositories/user-repo';
+import { APIError, NotFound, Unauthorized } from '../middlewares/ErrorHandler';
 
 export const createUser = async (
   name: string,

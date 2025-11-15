@@ -1,14 +1,14 @@
 import express from "express";
 import cors from "cors";
-import config from "./config/config.ts";
-import authRouter from "./routes/auth-routes.ts";
-import { errorHandler } from "./middlewares/ErrorHandler.ts";
-import addressRouter from "./routes/address-routes.ts";
-import productRouter from "./routes/product-routes.ts";
-import cartRouter from "./routes/cart-routes.ts";
-import orderRouter from "./routes/order-routes.ts";
-import UserRouter from "./routes/user-routes.ts";
-import WishListRouter from "./routes/wishlist-routes.ts";
+import config from "./config/config";
+import authRouter from "./routes/auth-routes";
+import { errorHandler } from "./middlewares/ErrorHandler";
+import addressRouter from "./routes/address-routes";
+import productRouter from "./routes/product-routes";
+import cartRouter from "./routes/cart-routes";
+import orderRouter from "./routes/order-routes";
+import UserRouter from "./routes/user-routes";
+import WishListRouter from "./routes/wishlist-routes";
 
 const app = express();
 

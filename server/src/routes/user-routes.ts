@@ -1,7 +1,7 @@
 import express from "express";
-import { authenticate } from "../middlewares/AuthMiddleware.ts";
-import { changePassword, getUsers, userProfile, updateProfile, deleteUser } from "../controllers/user-controller.ts";
-import { isAdmin } from "../middlewares/isAdmin.ts";
+import { authenticate } from "../middlewares/AuthMiddleware";
+import { changePassword, getUsers, userProfile, updateProfile, deleteUser } from "../controllers/user-controller";
+import { isAdmin } from "../middlewares/isAdmin";
 
 const UserRouter = express.Router();
 

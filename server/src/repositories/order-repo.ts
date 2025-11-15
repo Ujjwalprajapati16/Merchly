@@ -1,5 +1,5 @@
-import type { OrderType } from "../types/Order-types.ts";
-import Order from "../models/order-models.ts";
+import type { OrderType } from "../types/Order-types";
+import Order from "../models/order-models";
 
 export const createOrder = async (orderData: Partial<OrderType>) => {
   const order = new Order(orderData);

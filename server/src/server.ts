@@ -1,6 +1,6 @@
-import app from "./app.ts";
-import config from "./config/config.ts";
-import { connectDB } from "./utils/connectDB.ts";
+import app from "./app";
+import config from "./config/config";
+import { connectDB } from "./utils/connectDB";
 
 app.listen(config.port, () => {
     connectDB();

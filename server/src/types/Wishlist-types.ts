@@ -1,4 +1,4 @@
-import type { User } from "./User-types.ts";
+import type { User } from "./User-types";
 
 export type WishlistItemType = {
   _id?: string;

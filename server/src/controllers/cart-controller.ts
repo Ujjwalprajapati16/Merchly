@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
-import type { AuthRequest } from "../types/AuthRequest.ts";
-import { addItemToCartService, checkoutCartService, clearUserCartService, getCartByUserId, moveItemBackToCartService, removeItemFromCartService, saveItemForLaterService, updateCartItemQuantity } from "../services/cart-services.ts";
+import type { AuthRequest } from "../types/AuthRequest";
+import { addItemToCartService, checkoutCartService, clearUserCartService, getCartByUserId, moveItemBackToCartService, removeItemFromCartService, saveItemForLaterService, updateCartItemQuantity } from "../services/cart-services";
 
 export const getCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {

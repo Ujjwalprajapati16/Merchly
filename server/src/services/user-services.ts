@@ -1,5 +1,4 @@
-import userModel from "../models/user-model.ts";
-import { changePasswordById, deleteUserById, getUserById, getUserDetailWithAddresses, getUsersForAdmin, updateUserInfo } from "../repositories/user-repo.ts";
+import { changePasswordById, deleteUserById, getUserById, getUserDetailWithAddresses, getUsersForAdmin, updateUserInfo } from "../repositories/user-repo";
 import bcrypt from 'bcrypt';
 
 export const getProfileService = async (id: string) => {

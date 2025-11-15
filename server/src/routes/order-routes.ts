@@ -1,7 +1,7 @@
 import express from "express";
-import { authenticate } from "../middlewares/AuthMiddleware.ts";
-import { buyNow, cancelOrder, getAllOrdersAdmin, getOrderById, getUserOrders, updateOrderStatus, updatePaymentStatus } from "../controllers/order-controller.ts";
-import { isAdmin } from "../middlewares/isAdmin.ts";
+import { authenticate } from "../middlewares/AuthMiddleware";
+import { buyNow, cancelOrder, getAllOrdersAdmin, getOrderById, getUserOrders, updateOrderStatus, updatePaymentStatus } from "../controllers/order-controller";
+import { isAdmin } from "../middlewares/isAdmin";
 
 const orderRouter = express.Router();
 

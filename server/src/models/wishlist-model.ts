@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import type { WishlistType } from "../types/Wishlist-types.ts";
+import type { WishlistType } from "../types/Wishlist-types";
 
 const wishlistItemSchema = new mongoose.Schema(
     {

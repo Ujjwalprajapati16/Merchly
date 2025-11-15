@@ -1,10 +1,10 @@
 import express from "express";
-import { authenticate } from "../middlewares/AuthMiddleware.ts";
+import { authenticate } from "../middlewares/AuthMiddleware";
 import {
   getWishlist,
   addToWishlist,
   removeFromWishlist
-} from "../controllers/wishlist-controller.ts";
+} from "../controllers/wishlist-controller";
 
 const WishListRouter = express.Router();
 

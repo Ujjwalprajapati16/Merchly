@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import type { AuthRequest } from "../types/AuthRequest.ts";
-import { BadRequest } from "../middlewares/ErrorHandler.ts";
-import { addProductService, deleteProductService, getCategoriesService, getProductsByCategoryService, getProductService, getProductsService, updateProductService } from "../services/product-services.ts";
-import type { Variant } from "../types/Product-types.ts";
+import type { AuthRequest } from "../types/AuthRequest";
+import { BadRequest } from "../middlewares/ErrorHandler";
+import { addProductService, deleteProductService, getCategoriesService, getProductsByCategoryService, getProductService, getProductsService, updateProductService } from "../services/product-services";
+import type { Variant } from "../types/Product-types";
 
 export const addProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {

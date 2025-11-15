@@ -1,8 +1,8 @@
 import type { NextFunction, Response } from "express";
-import type { AuthRequest } from "../types/AuthRequest.ts";
-import { BadRequest, Unauthorized } from "../middlewares/ErrorHandler.ts";
-import { addAddressService, deleteAddressService, getAddressByIdService, getAddressService, getPreferredAddressService, setPreferredAddressService, updateAddressService } from "../services/address-services.ts";
-import type { UpdateAddressDTO } from "../types/Address-types.ts";
+import type { AuthRequest } from "../types/AuthRequest";
+import { BadRequest, Unauthorized } from "../middlewares/ErrorHandler";
+import { addAddressService, deleteAddressService, getAddressByIdService, getAddressService, getPreferredAddressService, setPreferredAddressService, updateAddressService } from "../services/address-services";
+import type { UpdateAddressDTO } from "../types/Address-types";
 
 export const addAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { addressLine1, addressLine2, city, state, country, pincode, isPreferred } = req.body;

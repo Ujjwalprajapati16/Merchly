@@ -1,5 +1,5 @@
-import type { address } from "../types/Address-types.ts";
-import Address from "../models/address-model.ts";
+import type { address } from "../types/Address-types";
+import Address from "../models/address-model";
 
 export const createAddress = async (address: address) => {
     return await Address.create(address);

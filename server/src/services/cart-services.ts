@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
-import { findCartByUserId, createEmptyCart, saveCart } from "../repositories/cart-repo.ts";
-import { findProductById } from "../repositories/product-repo.ts";
-import type { Cart, CartItem } from "../types/Cart-types.ts";
-import type { Variant } from "../types/Product-types.ts";
-import { BadRequest } from "../middlewares/ErrorHandler.ts";
-import { getPreferredAddressByUserId } from "../repositories/address-repo.ts";
-import { createOrder } from "../repositories/order-repo.ts";
+import { findCartByUserId, createEmptyCart, saveCart } from "../repositories/cart-repo";
+import { findProductById } from "../repositories/product-repo";
+import type { Cart, CartItem } from "../types/Cart-types";
+import type { Variant } from "../types/Product-types";
+import { BadRequest } from "../middlewares/ErrorHandler";
+import { getPreferredAddressByUserId } from "../repositories/address-repo";
+import { createOrder } from "../repositories/order-repo";
 import type { OrderType } from "../types/Order-types.ts";
 
 export const getCartByUserId = async (userId: string): Promise<Cart> => {

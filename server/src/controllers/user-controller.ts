@@ -1,7 +1,7 @@
 import type { NextFunction, Response } from "express";
-import type { AuthRequest } from "../types/AuthRequest.ts";
-import { Unauthorized } from "../middlewares/ErrorHandler.ts";
-import { changePasswordService, deleteUserService, getProfileService, getUsersService, updateProfileService } from "../services/user-services.ts";
+import type { AuthRequest } from "../types/AuthRequest";
+import { Unauthorized } from "../middlewares/ErrorHandler";
+import { changePasswordService, deleteUserService, getProfileService, getUsersService, updateProfileService } from "../services/user-services";
 
 export const userProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const id = req.user?.id;

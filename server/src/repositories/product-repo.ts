@@ -1,5 +1,5 @@
-import productModel from "../models/product-model.ts";
-import type { Product, ProductToAdd } from "../types/Product-types.ts";
+import productModel from "../models/product-model";
+import type { Product, ProductToAdd } from "../types/Product-types";
 
 export const createProduct = async (product: ProductToAdd) => {
     return await productModel.create(product);

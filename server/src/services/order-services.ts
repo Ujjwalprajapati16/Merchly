@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { BadRequest, NotFound } from "../middlewares/ErrorHandler.ts";
-import { getPreferredAddressByUserId } from "../repositories/address-repo.ts";
-import { cancelOrderById, createOrder, findOrderById, getAllOrdersAdminRepo, getOrdersByUserId, updateOrderStatusRepo } from "../repositories/order-repo.ts";
-import { findProductById } from "../repositories/product-repo.ts";
+import { BadRequest, NotFound } from "../middlewares/ErrorHandler";
+import { getPreferredAddressByUserId } from "../repositories/address-repo";
+import { cancelOrderById, createOrder, findOrderById, getAllOrdersAdminRepo, getOrdersByUserId, updateOrderStatusRepo } from "../repositories/order-repo";
+import { findProductById } from "../repositories/product-repo";
 
 
 export const buyNowService = async (

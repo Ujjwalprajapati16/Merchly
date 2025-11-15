@@ -1,5 +1,5 @@
-import type { User } from "../types/User-types.ts";
-import config from '../config/config.ts';
+import type { User } from "../types/User-types";
+import config from '../config/config';
 import jwt from 'jsonwebtoken';
 
 export const generateJwt = (user: User) => {

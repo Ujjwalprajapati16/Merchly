@@ -1,7 +1,7 @@
-import cloudinary from "../config/cloudinary.ts";
-import { APIError } from "../middlewares/ErrorHandler.ts";
-import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory, updateProductById, findProductById, deleteProductById } from "../repositories/product-repo.ts";
-import type { Product, ProductToAdd, Variant } from "../types/Product-types.ts";
+import cloudinary from "../config/cloudinary";
+import { APIError } from "../middlewares/ErrorHandler";
+import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory, updateProductById, findProductById, deleteProductById } from "../repositories/product-repo";
+import type { Product, ProductToAdd, Variant } from "../types/Product-types";
 
 export const addProductService = async (name: string, price: number, description: string, category: string, variants: Variant[]) => {
     const slug = name.toLowerCase().replace(/ /g, "-");
