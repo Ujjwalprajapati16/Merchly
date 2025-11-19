@@ -1,7 +1,7 @@
 import express from "express";
-import { authenticate } from "../middlewares/AuthMiddleware";
-import { changePassword, getUsers, userProfile, updateProfile, deleteUser } from "../controllers/user-controller";
-import { isAdmin } from "../middlewares/isAdmin";
+import { authenticate } from "../middlewares/AuthMiddleware.js";
+import { changePassword, getUsers, userProfile, updateProfile, deleteUser } from "../controllers/user-controller.js";
+import { isAdmin } from "../middlewares/isAdmin.js";
 
 const UserRouter = express.Router();
 

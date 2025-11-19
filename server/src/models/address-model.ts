@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import type { address } from "../types/Address-types";
+import type { address } from "../types/Address-types.js";
 
 const addressSchema = new mongoose.Schema<address>({
     user: {

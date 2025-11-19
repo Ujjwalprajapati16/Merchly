@@ -1,5 +1,5 @@
-import type { Product, Variant } from "./Product-types";
-import type { User } from "./User-types";
+import type { Product, Variant } from "./Product-types.js";
+import type { User } from "./User-types.js";
 
 export type Cart = {
     _id: string;

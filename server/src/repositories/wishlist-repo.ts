@@ -1,4 +1,4 @@
-import Wishlist from "../models/wishlist-model";
+import Wishlist from "../models/wishlist-model.js";
 
 export const getWishlistByUserId = async (userId: string) => {
   return await Wishlist.findOne({ user: userId }).populate("items.productId");

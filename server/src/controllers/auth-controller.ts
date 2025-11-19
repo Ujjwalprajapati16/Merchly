@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
-import { createUser, loginUserService } from "../services/auth-services";
-import { generateJwt } from "../middlewares/JwtHandler";
-import { BadRequest } from "../middlewares/ErrorHandler";
+import { createUser, loginUserService } from "../services/auth-services.js";
+import { generateJwt } from "../middlewares/JwtHandler.js";
+import { BadRequest } from "../middlewares/ErrorHandler.js";
 
 export const registerUser = async (req : Request, res : Response, next : NextFunction) => {
     const { name, email, password, role } = req.body;

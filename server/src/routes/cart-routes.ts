@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate } from "../middlewares/AuthMiddleware";
+import { authenticate } from "../middlewares/AuthMiddleware.js";
 import {
   addToCart,
   getCart,
@@ -9,7 +9,7 @@ import {
   saveForLater,
   updateQuantity,
   moveToCart,
-} from "../controllers/cart-controller";
+} from "../controllers/cart-controller.js";
 
 const cartRouter = express.Router();
 

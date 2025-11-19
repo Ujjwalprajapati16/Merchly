@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { BadRequest, NotFound } from "../middlewares/ErrorHandler";
-import { getPreferredAddressByUserId } from "../repositories/address-repo";
-import { cancelOrderById, createOrder, findOrderById, getAllOrdersAdminRepo, getOrdersByUserId, updateOrderStatusRepo } from "../repositories/order-repo";
-import { findProductById } from "../repositories/product-repo";
+import { BadRequest, NotFound } from "../middlewares/ErrorHandler.js";
+import { getPreferredAddressByUserId } from "../repositories/address-repo.js";
+import { cancelOrderById, createOrder, findOrderById, getAllOrdersAdminRepo, getOrdersByUserId, updateOrderStatusRepo } from "../repositories/order-repo.js";
+import { findProductById } from "../repositories/product-repo.js";
 
 
 export const buyNowService = async (
@@ -18,7 +18,7 @@ export const buyNowService = async (
     let variant = null;
     if (selectedVariant) {
         variant = product.variants.find(
-            (v) => v.color === selectedVariant.color && v.size === selectedVariant.size
+            (v : { color: string; size: string }) => v.color === selectedVariant.color && v.size === selectedVariant.size
         );
     } else {
         variant = product.variants[0]; // default fallback

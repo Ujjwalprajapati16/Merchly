@@ -3,7 +3,7 @@ import {
   createWishlist,
   addItemToWishlistRepo,
   removeFromWishlistRepo,
-} from "../repositories/wishlist-repo";
+} from "../repositories/wishlist-repo.js";
 
 export const getWishlistService = async (userId: string) => {
   let wishlist = await getWishlistByUserId(userId);

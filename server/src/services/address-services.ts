@@ -1,8 +1,8 @@
-import { APIError, NotFound, Unauthorized } from "../middlewares/ErrorHandler";
-import { createAddress, deleteAddress, getAddressById, getAddresses, getPreferredAddressByUserId, unsetAllPreferredAddresses, updateAddress } from "../repositories/address-repo";
-import { getUserById } from "../repositories/user-repo";
-import type { address, UpdateAddressDTO } from "../types/Address-types";
-import type { User } from "../types/User-types";
+import { APIError, NotFound, Unauthorized } from "../middlewares/ErrorHandler.js";
+import { createAddress, deleteAddress, getAddressById, getAddresses, getPreferredAddressByUserId, unsetAllPreferredAddresses, updateAddress } from "../repositories/address-repo.js";
+import { getUserById } from "../repositories/user-repo.js";
+import type { address, UpdateAddressDTO } from "../types/Address-types.js";
+import type { User } from "../types/User-types.js";
 
 export const addAddressService = async (
     userId: string,

@@ -1,6 +1,6 @@
-import app from "./app";
-import config from "./config/config";
-import { connectDB } from "./utils/connectDB";
+import app from "./app.js";
+import config from "./config/config.js";
+import { connectDB } from "./utils/connectDB.js";
 
 app.listen(config.port, () => {
     connectDB();

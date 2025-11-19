@@ -1,6 +1,6 @@
-import addressModel from "../models/address-model";
-import userModel from "../models/user-model";
-import type { RegisterUser } from "../types/User-types";
+import addressModel from "../models/address-model.js";
+import userModel from "../models/user-model.js";
+import type { RegisterUser } from "../types/User-types.js";
 
 export const createNewUser = async (user: RegisterUser) => {
   return await userModel.create(user);

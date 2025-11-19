@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import type { NextFunction, Response } from "express";
-import type { AuthRequest } from "../types/AuthRequest";
-import { Unauthorized } from "./ErrorHandler";
-import config from "../config/config";
+import type { AuthRequest } from "../types/AuthRequest.js";
+import { Unauthorized } from "./ErrorHandler.js";
+import config from "../config/config.js";
 
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;

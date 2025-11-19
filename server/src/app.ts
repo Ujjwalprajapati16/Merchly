@@ -1,14 +1,14 @@
 import express from "express";
 import cors from "cors";
-import config from "./config/config";
-import authRouter from "./routes/auth-routes";
-import { errorHandler } from "./middlewares/ErrorHandler";
-import addressRouter from "./routes/address-routes";
-import productRouter from "./routes/product-routes";
-import cartRouter from "./routes/cart-routes";
-import orderRouter from "./routes/order-routes";
-import UserRouter from "./routes/user-routes";
-import WishListRouter from "./routes/wishlist-routes";
+import config from "./config/config.js";
+import authRouter from "./routes/auth-routes.js";
+import { errorHandler } from "./middlewares/ErrorHandler.js";
+import addressRouter from "./routes/address-routes.js";
+import productRouter from "./routes/product-routes.js";
+import cartRouter from "./routes/cart-routes.js";
+import orderRouter from "./routes/order-routes.js";
+import UserRouter from "./routes/user-routes.js";
+import WishListRouter from "./routes/wishlist-routes.js";
 
 const app = express();
 

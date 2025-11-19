@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import type { Cart, CartItem } from "../types/Cart-types";
+import type { Cart, CartItem } from "../types/Cart-types.js";
 
 const variantSchema = new mongoose.Schema(
     {

@@ -1,4 +1,4 @@
-import type { User } from "./User-types";
+import type { User } from "./User-types.js";
 
 export type WishlistItemType = {
   _id?: string;

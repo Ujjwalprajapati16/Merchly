@@ -1,10 +1,10 @@
 import type { Response, NextFunction } from "express";
-import type { AuthRequest } from "../types/AuthRequest";
+import type { AuthRequest } from "../types/AuthRequest.js";
 import {
   getWishlistService,
   addToWishlistService,
   removeFromWishlistService
-} from "../services/wishlist-service";
+} from "../services/wishlist-service.js";
 
 export const getWishlist = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {

@@ -1,5 +1,5 @@
-import cartModels from "../models/cart-models";
-import productModel from "../models/product-model";
+import cartModels from "../models/cart-models.js";
+import productModel from "../models/product-model.js";
 
 export const findCartByUserId = async (userId: string) => {
     return await cartModels.findOne({ user: userId })

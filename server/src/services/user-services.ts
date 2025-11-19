@@ -1,4 +1,4 @@
-import { changePasswordById, deleteUserById, getUserById, getUserDetailWithAddresses, getUsersForAdmin, updateUserInfo } from "../repositories/user-repo";
+import { changePasswordById, deleteUserById, getUserById, getUserDetailWithAddresses, getUsersForAdmin, updateUserInfo } from "../repositories/user-repo.js";
 import bcrypt from 'bcrypt';
 
 export const getProfileService = async (id: string) => {

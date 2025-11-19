@@ -1,7 +1,7 @@
 import type { NextFunction, Response } from "express";
-import type { AuthRequest } from "../types/AuthRequest";
-import { buyNowService, cancelOrderService, getAllOrdersAdminService, getOrderByIdService, getUserOrdersService, updateOrderStatusService } from "../services/order-services";
-import { Unauthorized } from "../middlewares/ErrorHandler";
+import type { AuthRequest } from "../types/AuthRequest.js";
+import { buyNowService, cancelOrderService, getAllOrdersAdminService, getOrderByIdService, getUserOrdersService, updateOrderStatusService } from "../services/order-services.js";
+import { Unauthorized } from "../middlewares/ErrorHandler.js";
 
 export const buyNow = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {

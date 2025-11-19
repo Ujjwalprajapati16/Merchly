@@ -1,8 +1,8 @@
 import express from "express";
-import { addProduct, deleteProduct, getCategories, getProduct, getProducts, getProductsByCategory, updateProduct } from "../controllers/product-controller";
-import { isAdmin } from "../middlewares/isAdmin";
-import { authenticate } from "../middlewares/AuthMiddleware";
-import { upload } from "../utils/multer";
+import { addProduct, deleteProduct, getCategories, getProduct, getProducts, getProductsByCategory, updateProduct } from "../controllers/product-controller.js";
+import { isAdmin } from "../middlewares/isAdmin.js";
+import { authenticate } from "../middlewares/AuthMiddleware.js";
+import { upload } from "../utils/multer.js";
 
 const productRouter = express.Router();
 
