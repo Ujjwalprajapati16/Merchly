@@ -10,8 +10,6 @@
     "skipLibCheck": true,
     "noEmit": false,
     "allowImportingTsExtensions": false,
-    "types": ["node", "express"],
-    "forceConsistentCasingInFileNames": true,
 
     // --- ADD THESE TWO LINES ---
     "sourceMap": true,          // Helps with debugging (shows error lines in .ts files, not .js)
