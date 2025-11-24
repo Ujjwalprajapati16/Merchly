@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { AuthRequest } from "../types/AuthRequest.js";
 import { BadRequest } from "../middlewares/ErrorHandler.js";
-import { addProductService, deleteProductService, getCategoriesService, getProductsByCategoryService, getProductService, getProductsService, updateProductService } from "../services/product-services.js";
+import { addProductService, deleteProductService, getCategoriesService, getProductsByCategoryService, getProductService, getProductsForHomePageService, getProductsService, updateProductService } from "../services/product-services.js";
 import type { Variant } from "../types/Product-types.js";
 
 export const addProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -47,6 +47,24 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
     const page = parseInt(req.query.page as string) || 1;
 
     const products = await getProductsService(limit, page);
+
+    res.status(200).json({
+      message: "Products fetched successfully",
+      page,
+      limit,
+      products,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProductsForHomePage = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 6;
+    const page = parseInt(req.query.page as string) || 1;
+
+    const products = await getProductsForHomePageService(limit, page);
 
     res.status(200).json({
       message: "Products fetched successfully",

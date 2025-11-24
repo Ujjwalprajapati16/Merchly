@@ -1,6 +1,6 @@
 import cloudinary from "../config/cloudinary.js";
 import { APIError } from "../middlewares/ErrorHandler.js";
-import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory, updateProductById, findProductById, deleteProductById } from "../repositories/product-repo.js";
+import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory, updateProductById, findProductById, deleteProductById, getAllProductsForHomePage } from "../repositories/product-repo.js";
 import type { Product, ProductToAdd, Variant } from "../types/Product-types.js";
 
 export const addProductService = async (name: string, price: number, description: string, category: string, variants: Variant[]) => {
@@ -25,6 +25,11 @@ export const addProductService = async (name: string, price: number, description
 export const getProductsService = async (limit: number, page: number) => {
     const skip = (page - 1) * limit;
     return await getAllProducts(limit, skip);
+};
+
+export const getProductsForHomePageService = async (limit: number, page: number) => {
+    const skip = (page - 1) * limit;
+    return await getAllProductsForHomePage(limit, skip);
 };
 
 export const getProductService = async (slug: string) => {

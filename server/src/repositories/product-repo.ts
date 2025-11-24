@@ -2,44 +2,72 @@ import productModel from "../models/product-model.js";
 import type { Product, ProductToAdd } from "../types/Product-types.js";
 
 export const createProduct = async (product: ProductToAdd) => {
-    return await productModel.create(product);
+  return await productModel.create(product);
 }
 
 export const getAllProducts = async (limit: number, skip: number) => {
-    const products = await productModel
-        .find({ status: "available" })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean();
+  const products = await productModel
+    .find({ status: "available" })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
 
-    return products;
+  return products;
 };
 
+export const getAllProductsForHomePage = async (limit: number, skip: number) => {
+  const [products, total] = await Promise.all([
+    productModel
+      .find({ status: "available" })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select({ name: 1, price: 1, "variants.image": 1, slug: 1 })
+      .lean(),
+    productModel.countDocuments({ status: "available" })
+  ]);
+
+  const formatted = products.map(p => ({
+    _id: p._id,
+    name: p.name,
+    price: p.price,
+    slug: p.slug,
+    image: p.variants?.[0]?.image || null
+  }));
+
+  return {
+    products: formatted,
+    totalProducts: total,
+    totalPages: Math.ceil(total / limit)
+  };
+};
+
+
 export const getProductBySlug = async (slug: string) => {
-    return await productModel.findOne({ slug });
+  return await productModel.findOne({ slug });
 }
 
 export const getCategories = async () => {
-    const categories = await productModel.aggregate([
-        { $match: { status: "available" } },
-        { $group: { _id: "$category", count: { $sum: 1 } } },
-        { $project: { _id: 0, category: "$_id", count: 1 } },
-    ]);
-    return categories;
+  const categories = await productModel.aggregate([
+    { $match: { status: "available" } },
+    { $group: { _id: "$category", count: { $sum: 1 } } },
+    { $project: { _id: 0, category: "$_id", count: 1 } },
+  ]);
+  return categories;
 }
 
 export const findProductsByCategory = async (
-    category: string,
-    limit: number,
-    skip: number
+  category: string,
+  limit: number,
+  skip: number
 ): Promise<Product[]> => {
-    return await productModel
-        .find({ category, status: "available" })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean();
+  return await productModel
+    .find({ category, status: "available" })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
 };
 
 export const updateProductById = async (
