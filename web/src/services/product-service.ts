@@ -1,11 +1,24 @@
 import api from "@/lib/axios";
-import { categories, Product } from "@/types/productTypes";
+import { categories, HomePageProduct, HomePageProductsResponse, Product } from "@/types/productTypes";
 import { getToken } from "./auth-service";
 
 export const getProducts = async (page = 1, limit = 6): Promise<Product[]> => {
   const res = await api.get(`/product?page=${page}&limit=${limit}`);
   return res.data.products;
 };
+
+export const getProductsForHomePage = async (page = 1, limit = 6) => {
+  const res = await api.get<HomePageProductsResponse>(
+    `/product/products?page=${page}&limit=${limit}`
+  );
+
+  return {
+    products: res.data.products.products,
+    totalProducts: res.data.products.totalProducts,
+    totalPages: res.data.products.totalPages
+  };
+};
+
 
 export const getProductById = async (id: string): Promise<Product> => {
   const res = await api.get(`/product/${id}`);

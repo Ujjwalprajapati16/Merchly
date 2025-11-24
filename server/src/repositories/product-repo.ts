@@ -23,7 +23,7 @@ export const getAllProductsForHomePage = async (limit: number, skip: number) => 
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select({ name: 1, price: 1, "variants.image": 1, slug: 1 })
+      .select({ name: 1, price: 1, variants: 1, slug: 1, status: 1, createdAt: 1 })
       .lean(),
     productModel.countDocuments({ status: "available" })
   ]);
@@ -33,8 +33,12 @@ export const getAllProductsForHomePage = async (limit: number, skip: number) => 
     name: p.name,
     price: p.price,
     slug: p.slug,
-    image: p.variants?.[0]?.image || null
+    image: p.variants?.[0]?.image || null,
+    variant: p.variants?.[0] || null,
+    status: p.status,
+    createdAt: p.createdAt
   }));
+
 
   return {
     products: formatted,

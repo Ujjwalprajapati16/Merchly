@@ -3,10 +3,10 @@
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import SortDropdown from "./SortDropdown";
-import { Product } from "@/types/productTypes";
+import { HomePageProduct } from "@/types/productTypes";
 
 interface ProductGridProps {
-  products: Product[];
+  products: HomePageProduct[];
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {

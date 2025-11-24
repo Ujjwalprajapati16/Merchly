@@ -3,15 +3,32 @@
 import { useState } from "react";
 import ProductsHero from "./components/ProductsHero";
 import ProductGrid from "./components/ProductGrid";
-import { useProducts } from "@/hooks/useProducts";
 import { ProductSkeleton } from "@/components/ProductSkeleton";
-import { Button } from "@/components/ui/button";
+
+// shadcn pagination
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+} from "@/components/ui/pagination";
+import { useHomePageProducts } from "@/hooks/useProducts";
 
 export default function Products() {
   const [page, setPage] = useState(1);
-  const limit = 12; 
+  const limit = 12;
 
-  const { data: products, isLoading, isError, refetch } = useProducts(page, limit);
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+  } = useHomePageProducts(page, limit);
+
+  const products = data?.products ?? [];
+  const totalPages = data?.totalPages ?? 1;
 
   if (isLoading) {
     return (
@@ -19,14 +36,13 @@ export default function Products() {
         <ProductsHero />
 
         <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 12 }).map((_, i) => (
             <ProductSkeleton key={i} />
           ))}
         </div>
       </div>
     );
   }
-
 
   if (isError) {
     return (
@@ -46,31 +62,56 @@ export default function Products() {
   return (
     <div className="py-6 px-6">
       <ProductsHero />
-      <ProductGrid products={products ?? []} />
+
+      <ProductGrid products={products} />
 
       {/* Pagination */}
-      <div className="flex justify-center mt-8 gap-3">
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={page === 1}
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-        >
-          Previous
-        </Button>
+      <div className="flex justify-center mt-10">
+        <Pagination>
+          <PaginationContent>
 
-        <span className="flex items-center px-2 py-1 rounded-lg bg-muted/10 text-sm">
-          Page {page}
-        </span>
+            {/* Previous */}
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={() =>
+                  setPage((prev) => Math.max(prev - 1, 1))
+                }
+                aria-disabled={page === 1}
+                className={page === 1 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
 
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={(products?.length ?? 0) < limit}
-          onClick={() => setPage((prev) => prev + 1)}
-        >
-          Next
-        </Button>
+            {/* Page numbers */}
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  href="#"
+                  onClick={() => setPage(i + 1)}
+                  isActive={page === i + 1}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            {/* Next */}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                aria-disabled={page === totalPages}
+                className={
+                  page === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );
