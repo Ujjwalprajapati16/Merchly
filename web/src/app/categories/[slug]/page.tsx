@@ -51,7 +51,18 @@ export default function CategoryDetails(props: CategoryDetailsProps) {
       {!isLoading && !isError && products && products.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mt-8">
           {products.map((product : Product) => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard key={product._id} product={
+              {
+                _id: product._id,
+                name: product.name,
+                price: product.price,
+                image: product.variants[0]?.image as string,
+                createdAt: product.createdAt,
+                status: product.status,
+                slug: product.slug,
+                variant: product.variants[0]
+              }
+            } />
           ))}
         </div>
       )}
