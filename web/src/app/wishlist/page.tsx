@@ -1,7 +1,9 @@
+import WishlistPageClient from "./components/WishlistPageClient";
+
 export default function WishlistPage() {
-    return (
-        <div className="max-w-5xl mx-auto py-8 px-4 space-y-4">
-            <h1 className="text-2xl font-bold mb-6">My Wishlist</h1>
-        </div>
-    );
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <WishlistPageClient />
+    </div>
+  );
 }
