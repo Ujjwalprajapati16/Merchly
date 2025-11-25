@@ -86,7 +86,7 @@ const Footer = () => {
 
         {/* Footer Bottom */}
         <div className="mt-12 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} MechLab. Crafted with ❤️ by Ujjwal.
+          &copy; {new Date().getFullYear()} Merchly. Crafted with ❤️ by Ujjwal.
         </div>
       </footer>
     </>
