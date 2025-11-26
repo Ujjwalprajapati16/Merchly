@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CartItem } from "./components/CartItem";
 import { CartSummary } from "./components/CartSummary";
 import { SavedItem } from "./components/SavedItem";
+import { SkeletonCartPage } from "./components/skeleton/SkeletonCartPage";
 
 export default function Page() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function Page() {
   const clearMutation = useClearCart();
   const updateQtyMutation = useUpdateCartQuantity();
 
-  if (isLoading) return <p className="p-4">Loading...</p>;
+  if (isLoading) return <SkeletonCartPage />;
 
   return (
     <div className="container mx-auto max-w-6xl py-10 flex flex-col gap-10">
