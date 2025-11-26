@@ -13,6 +13,7 @@ import {
   PaginationNext,
   PaginationLink,
 } from "@/components/ui/pagination";
+import SkeletonOrdersList from "./skeleton/SkeletonOrdersList";
 
 export default function OrdersList() {
   const searchParams = useSearchParams();
@@ -30,13 +31,7 @@ export default function OrdersList() {
     router.push(`/orders?page=${p}`);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
-      </div>
-    );
-  }
+  if (isLoading) return <SkeletonOrdersList />;
 
   if (orders.length === 0) {
     return <p className="text-gray-500 text-center py-8">No orders found.</p>;

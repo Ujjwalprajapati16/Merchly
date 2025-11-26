@@ -4,19 +4,15 @@ import { useOrder } from "@/hooks/useOrders";
 import Image from "next/image";
 import OrderDetailsSection from "./components/OrderDetails";
 import OrderTimeline from "./components/OrderTimeline";
-import { Loader2 } from "lucide-react";
 import { use } from "react";
+import SkeletonOrderDetailsPage from "./components/skeleton/SkeletonOrderDetailsPage";
 
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const {id} = use(params);
   const { data, isLoading } = useOrder(id);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[70vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
-      </div>
-    );
+    return <SkeletonOrderDetailsPage />;
   }
 
   const order = data?.order;
