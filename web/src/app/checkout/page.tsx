@@ -4,11 +4,10 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/hooks/useCart";
 import { usePreferredAddress } from "@/hooks/useAddress";
 import { useCheckoutCart } from "@/hooks/useCart";
-import { toast } from "sonner";
-
 import AddressSection from "./components/AddressSection";
 import OrderSummary from "./components/OrderSummary";
 import PlaceOrderButton from "./components/PlaceOrderButton";
+import SkeletonCheckoutPage from "./components/skeleton/SkeletonCheckoutPage";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -16,7 +15,7 @@ export default function CheckoutPage() {
   const { data: address, isLoading: addrLoading } = usePreferredAddress();
   const checkoutMutation = useCheckoutCart();
 
-  if (cartLoading || addrLoading) return <p className="p-4">Loading checkout...</p>;
+  if (cartLoading || addrLoading) return <SkeletonCheckoutPage />;
 
   const handlePlaceOrder = () => {
     checkoutMutation.mutate(undefined, {
