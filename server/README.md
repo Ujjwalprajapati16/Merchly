@@ -209,7 +209,7 @@ Register a new user account.
   "name": "John Doe",
   "email": "john.doe@example.com",
   "password": "securePassword123",
-  "role": "user" // optional, defaults to "user"
+  "role": "customer" // optional, defaults to "customer"
 }
 ```
 
@@ -252,7 +252,7 @@ Authenticate user and get access token.
     "id": "507f1f77bcf86cd799439011",
     "name": "John Doe",
     "email": "john.doe@example.com",
-    "role": "user"
+    "role": "customer"
   }
 }
 ```
@@ -501,7 +501,7 @@ GET /api/v1/product/?limit=10&page=1
       "slug": "cool-t-shirt",
       "price": 29.99,
       "description": "A stylish and comfortable t-shirt",
-      "status": "active",
+      "status": "available",
       "category": "clothing",
       "variants": [
         {
@@ -513,6 +513,44 @@ GET /api/v1/product/?limit=10&page=1
           "color": "blue",
           "size": "L",
           "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/blue-l.jpg"
+        }
+      ],
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+### Get Products for Home Page
+**GET** `/api/v1/product/products`
+
+Retrieve a list of products curated for the home page.
+
+**Query Parameters:**
+- `limit` (optional): Number of products per page (default: 6)
+- `page` (optional): Page number (default: 1)
+
+**Response (200):**
+```json
+{
+  "message": "Products fetched successfully",
+  "page": 1,
+  "limit": 6,
+  "products": [
+    {
+      "id": 1,
+      "name": "Cool T-Shirt",
+      "slug": "cool-t-shirt",
+      "price": 29.99,
+      "description": "A stylish and comfortable t-shirt",
+      "status": "available",
+      "category": "clothing",
+      "variants": [
+        {
+          "color": "red",
+          "size": "M",
+          "image": "https://res.cloudinary.com/yourcloud/image/upload/v1234567890/products/variants/red-m.jpg"
         }
       ],
       "createdAt": "2024-01-15T10:30:00Z",
@@ -542,7 +580,7 @@ GET /api/v1/product/cool-t-shirt
     "slug": "cool-t-shirt",
     "price": 29.99,
     "description": "A stylish and comfortable t-shirt",
-    "status": "active",
+    "status": "available",
     "category": "clothing",
     "variants": [
       {
@@ -604,7 +642,7 @@ GET /api/v1/product/categories/clothing?limit=5&page=1
       "slug": "cool-t-shirt",
       "price": 29.99,
       "description": "A stylish and comfortable t-shirt",
-      "status": "active",
+      "status": "available",
       "category": "clothing",
       "variants": [
         {
@@ -659,7 +697,7 @@ images: [file1.jpg, file2.jpg]
     "slug": "cool-t-shirt",
     "price": 29.99,
     "description": "A stylish and comfortable t-shirt",
-    "status": "active",
+    "status": "available",
     "category": "clothing",
     "variants": [
       {
@@ -708,7 +746,7 @@ Content-Type: multipart/form-data
     "slug": "cool-t-shirt",
     "price": 34.99,
     "description": "An updated stylish and comfortable t-shirt",
-    "status": "active",
+    "status": "available",
     "category": "clothing",
     "variants": [
       {
@@ -1388,7 +1426,7 @@ Authorization: Bearer <jwt_token>
     "_id": "507f1f77bcf86cd799439011",
     "name": "John Doe",
     "email": "john.doe@example.com",
-    "role": "user",
+    "role": "customer",
     "createdAt": "2024-01-10T10:00:00Z",
     "updatedAt": "2024-01-15T14:30:00Z"
   }
@@ -1422,7 +1460,7 @@ Content-Type: application/json
     "_id": "507f1f77bcf86cd799439011",
     "name": "John Updated Doe",
     "email": "john.updated@example.com",
-    "role": "user",
+    "role": "customer",
     "updatedAt": "2024-01-16T10:30:00Z"
   }
 }
@@ -1477,7 +1515,7 @@ Authorization: Bearer <jwt_token>
       "_id": "507f1f77bcf86cd799439011",
       "name": "John Doe",
       "email": "john.doe@example.com",
-      "role": "user",
+      "role": "customer",
       "preferredAddress": {
         "_id": "507f1f77bcf86cd799439012",
         "addressLine1": "123 Main Street",
@@ -1599,6 +1637,37 @@ Remove a product from the user's wishlist.
 **Headers:**
 ```
 Authorization: Bearer <jwt_token>
+```
+
+**Response (200):**
+```json
+{
+  "message": "Product removed from wishlist",
+  "wishlist": {
+    "_id": "507f1f77bcf86cd799439030",
+    "user": "507f1f77bcf86cd799439011",
+    "items": [],
+    "updatedAt": "2024-01-16T14:20:00Z"
+  }
+}
+```
+
+### Remove from Wishlist by Product ID
+**DELETE** `/api/v1/wishlist/remove`
+
+Remove a product from the wishlist using the product ID as a query parameter.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Query Parameters:**
+- `productId`: The ID of the product to remove.
+
+**Example Request:**
+```
+DELETE /api/v1/wishlist/remove?productId=507f1f77bcf86cd799439015
 ```
 
 **Response (200):**
