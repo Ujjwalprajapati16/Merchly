@@ -44,3 +44,8 @@ export type HomePageProductsResponse = {
     totalPages: number;
   };
 };
+
+export type ProductResponse = {
+  product: Product;
+  isInWishlist: boolean;
+};

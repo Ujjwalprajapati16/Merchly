@@ -1,77 +1,96 @@
 import cloudinary from "../config/cloudinary.js";
 import { APIError } from "../middlewares/ErrorHandler.js";
 import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory, updateProductById, findProductById, deleteProductById, getAllProductsForHomePage } from "../repositories/product-repo.js";
+import { isProductInWishlist } from "../repositories/wishlist-repo.js";
 import type { Product, ProductToAdd, Variant } from "../types/Product-types.js";
 
 export const addProductService = async (name: string, price: number, description: string, category: string, variants: Variant[]) => {
-    const slug = name.toLowerCase().replace(/ /g, "-");
+  const slug = name.toLowerCase().replace(/ /g, "-");
 
-    const product: ProductToAdd = {
-        name,
-        price,
-        slug,
-        description,
-        category,
-        variants
-    };
+  const product: ProductToAdd = {
+    name,
+    price,
+    slug,
+    description,
+    category,
+    variants
+  };
 
-    const newProduct = await createProduct(product);
+  const newProduct = await createProduct(product);
 
-    if (!newProduct) throw new APIError(500, "Failed to add product");
+  if (!newProduct) throw new APIError(500, "Failed to add product");
 
-    return newProduct;
+  return newProduct;
 }
 
 export const getProductsService = async (limit: number, page: number) => {
-    const skip = (page - 1) * limit;
-    return await getAllProducts(limit, skip);
+  const skip = (page - 1) * limit;
+  return await getAllProducts(limit, skip);
 };
 
 export const getProductsForHomePageService = async (limit: number, page: number) => {
-    const skip = (page - 1) * limit;
-    return await getAllProductsForHomePage(limit, skip);
+  const skip = (page - 1) * limit;
+  return await getAllProductsForHomePage(limit, skip);
 };
 
-export const getProductService = async (slug: string) => {
-    return await getProductBySlug(slug);
-}
+export const getProductService = async (slug: string, userId?: string) => {
+  const product = await getProductBySlug(slug);
+
+  if (!product) return null;
+
+  // If user not logged in → simply return product
+  if (!userId) {
+    return {
+      product,
+      isInWishlist: false,
+    };
+  }
+
+  // If logged in → check wishlist
+  const inWishlist = await isProductInWishlist(userId, String(product._id));
+
+  return {
+    product,
+    isInWishlist: inWishlist,
+  };
+};
 
 export const getCategoriesService = async () => {
-    return await getCategories();
+  return await getCategories();
 };
 
 export const getProductsByCategoryService = async (
-    category: string,
-    limit: number,
-    page: number
+  category: string,
+  limit: number,
+  page: number
 ): Promise<Product[]> => {
-    const skip = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
-    const products = await findProductsByCategory(category, limit, skip);
+  const products = await findProductsByCategory(category, limit, skip);
 
-    return products;
+  return products;
 };
 
 export const updateProductService = async (
-    productId: string,
-    data: {
-        name?: string;
-        price?: number;
-        description?: string;
-        category?: string;
-        slug?: string;
-        variants?: Variant[];
-    }
+  productId: string,
+  data: {
+    name?: string;
+    price?: number;
+    description?: string;
+    category?: string;
+    slug?: string;
+    variants?: Variant[];
+  }
 ) => {
-    if (data.name) {
-        data.slug = data.name.toLowerCase().replace(/\s+/g, "-");
-    }
+  if (data.name) {
+    data.slug = data.name.toLowerCase().replace(/\s+/g, "-");
+  }
 
-    const updatedProduct = await updateProductById(productId, data);
+  const updatedProduct = await updateProductById(productId, data);
 
-    if (!updatedProduct) throw new Error("Product not found or failed to update");
+  if (!updatedProduct) throw new Error("Product not found or failed to update");
 
-    return updatedProduct;
+  return updatedProduct;
 };
 
 export const deleteProductService = async (productId: string) => {

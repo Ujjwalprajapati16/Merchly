@@ -77,20 +77,36 @@ export const getProductsForHomePage = async (req: Request, res: Response, next: 
   }
 };
 
-export const getProduct = async (req: Request, res: Response, next: NextFunction) => {
+export const getProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { slug } = req.params;
+  const { userId } = req.query;
 
   if (!slug) {
     throw new BadRequest("Slug required to fetch product");
   }
 
   try {
-    const product = await getProductService(slug);
-    res.status(200).json({ message: "Product fetched successfully", product });
+    let result;
+    
+    if(userId){
+      result = await getProductService(slug, userId as string);
+    } else {
+      result = await getProductService(slug);
+    }
+
+    if (!result) {
+      throw new BadRequest("Product not found");
+    }
+
+    res.status(200).json({
+      message: "Product fetched successfully",
+      product: result.product,
+      isInWishlist: result.isInWishlist,
+    });
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const getCategories = async (req: Request, res: Response, next: NextFunction) => {
   try {

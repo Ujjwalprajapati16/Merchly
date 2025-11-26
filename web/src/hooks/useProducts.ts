@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, getProductById, getProductsByCategory, getCategories, getProductsForHomePage } from "@/services/product-service";
-import { categories, HomePageProduct } from "@/types/productTypes.js";
+import { categories, ProductResponse } from "@/types/productTypes";
 
 export const useProducts = (page = 1, limit = 6) => {
   return useQuery({
@@ -17,13 +17,14 @@ export const useHomePageProducts = (page = 1, limit = 6) => {
 };
 
 
-export const useProduct = (id: string) => {
-  return useQuery({
+export const useProduct = (id: string, userId?: string) => {
+  return useQuery<ProductResponse>({
     queryKey: ["product", id],
-    queryFn: () => getProductById(id),
+    queryFn: () => getProductById(id, userId),
     enabled: !!id,
   });
 };
+
 
 export const useProductsByCategory = (category: string, page = 1) => {
   return useQuery({

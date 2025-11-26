@@ -16,7 +16,7 @@ export default function WishlistCard({ item }: WishlistCardProps) {
       {/* Wishlist Heart */}
       <div className="absolute top-3 right-3 z-20">
         <div className="bg-white/90 dark:bg-black/60 backdrop-blur-sm p-1 rounded-full shadow">
-          <WishlistButton productId={product._id} isWishlist={true} />
+          <WishlistButton productId={product._id} initialState={true} wishlistItemId={item._id}/>
         </div>
       </div>
 

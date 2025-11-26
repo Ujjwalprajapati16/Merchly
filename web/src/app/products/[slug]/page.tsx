@@ -5,6 +5,7 @@ import { useProduct } from "@/hooks/useProducts";
 import { ProductSkeleton } from "@/components/ProductSkeleton";
 import { Button } from "@/components/ui/button";
 import { ProductDetailsWrapper } from "./components/ProductDetailsWrapper";
+import { useAuth } from "@/providers/AuthProvider";
 
 interface ProductDetailsProps {
   params: Promise<{ slug: string }>;
@@ -13,8 +14,9 @@ interface ProductDetailsProps {
 export default function ProductDetails(props: ProductDetailsProps) {
   const params = use(props.params);
   const slug = params.slug;
+  const {user} = useAuth();
 
-  const { data: product, isLoading, isError, refetch } = useProduct(slug);
+  const { data: product, isLoading, isError, refetch } = useProduct(slug, user?.id);
 
   if (isLoading) {
     return (

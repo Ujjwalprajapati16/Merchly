@@ -29,3 +29,11 @@ export const removeFromWishlistRepo = async (userId: string, itemId: string) => 
     { new: true }
   );
 };
+
+export const isProductInWishlist = async (userId: string, productId: string) => {
+  const wishlist = await Wishlist.findOne({
+    user: userId,
+    "items.productId": productId,
+  });
+  return Boolean(wishlist);
+};

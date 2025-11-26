@@ -1,6 +1,7 @@
 import api from "@/lib/axios";
-import { categories, HomePageProduct, HomePageProductsResponse, Product } from "@/types/productTypes";
-import { getToken } from "./auth-service";
+import { categories, HomePageProductsResponse, Product, ProductResponse } from "@/types/productTypes";
+import { getToken, isAuthenticated } from "./auth-service";
+import { useAuth } from "@/providers/AuthProvider.js";
 
 export const getProducts = async (page = 1, limit = 6): Promise<Product[]> => {
   const res = await api.get(`/product?page=${page}&limit=${limit}`);
@@ -20,10 +21,19 @@ export const getProductsForHomePage = async (page = 1, limit = 6) => {
 };
 
 
-export const getProductById = async (id: string): Promise<Product> => {
-  const res = await api.get(`/product/${id}`);
-  return res.data.product;
+export const getProductById = async (id: string, userId?: string): Promise<ProductResponse> => {
+  let res;
+  if (isAuthenticated()) {
+    res = await api.get(`/product/${id}?userId=${userId}`);
+  } else {
+    res = await api.get(`/product/${id}`);
+  }
+  return {
+    product: res.data.product,
+    isInWishlist: res.data.isInWishlist ?? false,
+  };
 };
+
 
 export const getProductsByCategory = async (category: string, page = 1, limit = 6): Promise<Product[]> => {
   const res = await api.get(`/product/categories/${category}?page=${page}&limit=${limit}`);

@@ -1,52 +1,68 @@
 "use client";
 
-import { Heart, HeartOff, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/useWishlist";
+import { useState } from "react";
+import { Heart, Loader2 } from "lucide-react";
 import { RiHeartFill } from "react-icons/ri";
+import { Button } from "@/components/ui/button";
+import {
+  useAddToWishlist,
+  useRemoveFromWishlist,
+} from "@/hooks/useWishlist";
+import { toast } from "sonner";
 
 type WishlistButtonProps = {
-    productId: string;
-    isWishlist: boolean;
+  productId: string;
+  initialState?: boolean;
+  wishlistItemId?: string | null; 
 };
 
-export default function WishlistButton({ productId, isWishlist }: WishlistButtonProps) {
-    const { data, isLoading: loadingWishlist } = useWishlist();
-    const addMutation = useAddToWishlist();
-    const removeMutation = useRemoveFromWishlist();
+export default function WishlistButton({
+  productId,
+  initialState = false,
+  wishlistItemId = null,
+}: WishlistButtonProps) {
+  const addMutation = useAddToWishlist();
+  const removeMutation = useRemoveFromWishlist();
 
-    // Check if product exists in wishlist
-    const wishlistItem = data?.wishlist?.items?.find(
-        (item: any) => item.productId._id === productId
-    );
+  const [isInWishlist, setIsInWishlist] = useState(initialState);
 
-    const isInWishlist = Boolean(wishlistItem);
-    const isMutating = addMutation.isPending || removeMutation.isPending;
+  const isMutating = addMutation.isPending || removeMutation.isPending;
 
-    const handleClick = () => {
-        if (isInWishlist) {
-            removeMutation.mutate(wishlistItem._id);
-        } else {
-            addMutation.mutate(productId);
-        }
-    };
+  const handleClick = () => {
+    const token = typeof window !== "undefined"
+      ? localStorage.getItem("token")
+      : null;
 
-    return (
-        <Button
-            variant="ghost"
-            size="icon"
-            disabled={loadingWishlist || isMutating}
-            onClick={handleClick}
-            className="rounded-full hover:bg-red-50 transition p-1"
-        >
-            {loadingWishlist || isMutating ? (
-                <Loader2 className="h-8 w-8 animate-spin text-red-500" />
-            ) : isInWishlist ? (
-                <RiHeartFill className="h-8 w-8 text-red-600 transition-all" />
-            ) : (
-                <Heart className="h-8 w-8 text-gray-600 hover:text-red-600 transition-all" />
-            )}
-        </Button>
+    if (!token) {
+      toast.error("You need to login first to manage wishlist");
+      return; 
+    }
 
-    );
+    // Normal wishlist logic
+    if (isInWishlist) {
+      setIsInWishlist(false);
+      removeMutation.mutate(wishlistItemId || productId);
+    } else {
+      setIsInWishlist(true);
+      addMutation.mutate(productId);
+    }
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      disabled={isMutating}
+      onClick={handleClick}
+      className="rounded-full hover:bg-red-50 p-1 transition"
+    >
+      {isMutating ? (
+        <Loader2 className="h-8 w-8 animate-spin text-red-500" />
+      ) : isInWishlist ? (
+        <RiHeartFill className="h-8 w-8 text-red-600 transition-all" />
+      ) : (
+        <Heart className="h-8 w-8 text-gray-600 hover:text-red-600 transition-all" />
+      )}
+    </Button>
+  );
 }
