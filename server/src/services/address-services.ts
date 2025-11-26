@@ -12,7 +12,7 @@ export const addAddressService = async (
     state: string,
     country: string,
     pincode: string,
-    isPreferred: boolean = false
+    isPreferred: boolean = true
 ) => {
     const user: User | null = await getUserById(userId);
     if (!user) throw new APIError(404, "User not found");
