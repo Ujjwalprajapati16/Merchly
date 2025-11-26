@@ -2,17 +2,12 @@
 
 import { useWishlist } from "@/hooks/useWishlist";
 import WishlistCard from "./WishlistCard";
+import SkeletonWishlistPage from "./skeleton/SkeletonWishlistPage";
 
 export default function WishlistPageClient() {
   const { data, isLoading } = useWishlist();
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <p className="text-lg text-muted-foreground">Loading wishlist...</p>
-      </div>
-    );
-  }
+  if (isLoading) return <SkeletonWishlistPage />
 
   const items = data?.wishlist?.items || [];
 

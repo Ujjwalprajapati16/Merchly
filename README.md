@@ -1,6 +1,6 @@
 # Merchly
 
-![Merchly Banner](./web/public/logo-light.png)
+![Merchly Banner](./web/public/logo-dark.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/Ujjwalprajapati16/Merchly/ci.yml?branch=main)](https://github.com/Ujjwalprajapati16/Merchly/actions)
