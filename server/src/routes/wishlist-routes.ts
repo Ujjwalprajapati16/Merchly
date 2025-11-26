@@ -11,5 +11,6 @@ const WishListRouter = express.Router();
 WishListRouter.get("/", authenticate, getWishlist);
 WishListRouter.post("/add", authenticate, addToWishlist);
 WishListRouter.delete("/remove/:itemId", authenticate, removeFromWishlist);
+WishListRouter.delete("/remove", authenticate, removeFromWishlist);
 
 export default WishListRouter;

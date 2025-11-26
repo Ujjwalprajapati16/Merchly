@@ -15,6 +15,11 @@ export const addToWishlistService = async (userId: string, productId: string) =>
   return await addItemToWishlistRepo(userId, productId);
 };
 
-export const removeFromWishlistService = async (userId: string, itemId: string) => {
-  return await removeFromWishlistRepo(userId, itemId);
+export const removeFromWishlistService = async (
+  userId: string,
+  itemId: string | null,
+  productId: string | null
+) => {
+  return await removeFromWishlistRepo(userId, itemId, productId);
 };
+

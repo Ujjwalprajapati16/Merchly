@@ -20,15 +20,28 @@ export const addItemToWishlistRepo = async (userId: string, productId: string) =
   );
 };
 
-export const removeFromWishlistRepo = async (userId: string, itemId: string) => {
+export const removeFromWishlistRepo = async (
+  userId: string,
+  itemId: string | null,
+  productId: string | null
+) => {
+  const pullCondition: any = {};
+
+  if (itemId) {
+    pullCondition._id = itemId;
+  }
+
+  if (productId) {
+    pullCondition.productId = productId;
+  }
+
   return await Wishlist.findOneAndUpdate(
     { user: userId },
-    {
-      $pull: { items: { _id: itemId } },
-    },
+    { $pull: { items: pullCondition } },
     { new: true }
   );
 };
+
 
 export const isProductInWishlist = async (userId: string, productId: string) => {
   const wishlist = await Wishlist.findOne({

@@ -15,9 +15,18 @@ export const addToWishlistService = async (productId: string) => {
 };
 
 // Remove product from wishlist
-export const removeFromWishlistService = async (itemId: string) => {
-  if (!itemId) throw new Error("itemId is required");
+export const removeFromWishlistService = async (
+  id: string,
+  type: "item" | "product"
+) => {
+  if (!id) throw new Error("Missing id for removal");
 
-  const res = await api.delete(`/wishlist/remove/${itemId}`);
+  const url =
+    type === "item"
+      ? `/wishlist/remove/${id}`              
+      : `/wishlist/remove?productId=${id}`;   
+
+  const res = await api.delete(url);
   return res.data;
 };
+

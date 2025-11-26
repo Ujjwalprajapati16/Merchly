@@ -34,9 +34,11 @@ export const useRemoveFromWishlist = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (itemId: string) => removeFromWishlistService(itemId),
+    mutationFn: (payload: { id: string; type: "item" | "product" }) =>
+      removeFromWishlistService(payload.id, payload.type),
+
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: WISHLIST_KEY });
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
     },
   });
 };

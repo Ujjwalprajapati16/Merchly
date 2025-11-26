@@ -30,15 +30,30 @@ export const addToWishlist = async (req: AuthRequest, res: Response, next: NextF
   }
 };
 
-export const removeFromWishlist = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const removeFromWishlist = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userId = req.user?.id;
     const { itemId } = req.params;
+    const { productId } = req.query;
 
-    if(!itemId) throw new Error("itemId is required");
+    if (!itemId && !productId) {
+      throw new Error("Either itemId or productId is required");
+    }
 
-    const wishlist = await removeFromWishlistService(userId!, itemId);
-    res.status(200).json({ message: "Product removed from wishlist", wishlist });
+    const wishlist = await removeFromWishlistService(
+      userId!,
+      itemId || null,
+      productId?.toString() || null
+    );
+
+    res.status(200).json({
+      message: "Product removed from wishlist",
+      wishlist,
+    });
   } catch (err) {
     next(err);
   }

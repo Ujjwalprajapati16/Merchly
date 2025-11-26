@@ -4,16 +4,13 @@ import { useState } from "react";
 import { Heart, Loader2 } from "lucide-react";
 import { RiHeartFill } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
-import {
-  useAddToWishlist,
-  useRemoveFromWishlist,
-} from "@/hooks/useWishlist";
+import { useAddToWishlist, useRemoveFromWishlist } from "@/hooks/useWishlist";
 import { toast } from "sonner";
 
 type WishlistButtonProps = {
   productId: string;
   initialState?: boolean;
-  wishlistItemId?: string | null; 
+  wishlistItemId?: string | null;
 };
 
 export default function WishlistButton({
@@ -35,14 +32,20 @@ export default function WishlistButton({
 
     if (!token) {
       toast.error("You need to login first to manage wishlist");
-      return; 
+      return;
     }
 
-    // Normal wishlist logic
     if (isInWishlist) {
+      // Removing
       setIsInWishlist(false);
-      removeMutation.mutate(wishlistItemId || productId);
+
+      removeMutation.mutate({
+        id: wishlistItemId ?? productId,
+        type: wishlistItemId ? "item" : "product",
+      });
+
     } else {
+      // Adding
       setIsInWishlist(true);
       addMutation.mutate(productId);
     }
