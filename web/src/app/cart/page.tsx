@@ -6,6 +6,7 @@ import { CartItem } from "./components/CartItem";
 import { CartSummary } from "./components/CartSummary";
 import { SavedItem } from "./components/SavedItem";
 import { SkeletonCartPage } from "./components/skeleton/SkeletonCartPage";
+import EmptyCart from "./components/EmptyCart";
 
 export default function Page() {
   const router = useRouter();
@@ -26,35 +27,42 @@ export default function Page() {
       <div className="flex flex-col gap-4">
         <h1 className="text-2xl font-bold">Your Cart</h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cart.items.map((item: any) => (
-            <CartItem
-              key={item._id}
-              item={item}
-              onRemove={() => removeMutation.mutate(item._id)}
-              onSave={() => saveMutation.mutate(item._id)}
-              onIncrease={() =>
-                updateQtyMutation.mutate({
-                  itemId: item._id,
-                  quantity: item.quantity + 1,
-                })
-              }
-              onDecrease={() =>
-                updateQtyMutation.mutate({
-                  itemId: item._id,
-                  quantity: Math.max(1, item.quantity - 1),
-                })
-              }
-            />
-          ))}
-        </div>
+        {/* If cart is empty */}
+        {cart.items.length === 0 ? (
+          <EmptyCart />
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {cart.items.map((item: any) => (
+                <CartItem
+                  key={item._id}
+                  item={item}
+                  onRemove={() => removeMutation.mutate(item._id)}
+                  onSave={() => saveMutation.mutate(item._id)}
+                  onIncrease={() =>
+                    updateQtyMutation.mutate({
+                      itemId: item._id,
+                      quantity: item.quantity + 1,
+                    })
+                  }
+                  onDecrease={() =>
+                    updateQtyMutation.mutate({
+                      itemId: item._id,
+                      quantity: Math.max(1, item.quantity - 1),
+                    })
+                  }
+                />
+              ))}
+            </div>
 
-        <CartSummary
-          total={cart.total}
-          onClear={() => clearMutation.mutate()}
-          onCheckout={() => router.push("/checkout?mode=cart")}
-          isClearing={clearMutation.isPending}
-        />
+            <CartSummary
+              total={cart.total}
+              onClear={() => clearMutation.mutate()}
+              onCheckout={() => router.push("/checkout?mode=cart")}
+              isClearing={clearMutation.isPending}
+            />
+          </>
+        )}
       </div>
 
       {/* Saved For Later Section */}

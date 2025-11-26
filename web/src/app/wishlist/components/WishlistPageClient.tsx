@@ -3,6 +3,7 @@
 import { useWishlist } from "@/hooks/useWishlist";
 import WishlistCard from "./WishlistCard";
 import SkeletonWishlistPage from "./skeleton/SkeletonWishlistPage";
+import EmptyWishlist from "./EmptyWishlist";
 
 export default function WishlistPageClient() {
   const { data, isLoading } = useWishlist();
@@ -16,7 +17,7 @@ export default function WishlistPageClient() {
       <h1 className="text-3xl font-semibold mb-6">Your Wishlist ❤️</h1>
 
       {items.length === 0 ? (
-        <p className="text-muted-foreground text-lg">Your wishlist is empty.</p>
+        <EmptyWishlist />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {items.map((item: any) => (

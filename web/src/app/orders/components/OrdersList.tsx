@@ -1,7 +1,6 @@
 "use client";
 
 import { useUserOrders } from "@/hooks/useOrders";
-import { Loader2 } from "lucide-react";
 import OrderCard from "./OrderCard";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -14,6 +13,7 @@ import {
   PaginationLink,
 } from "@/components/ui/pagination";
 import SkeletonOrdersList from "./skeleton/SkeletonOrdersList";
+import EmptyOrders from "./EmptyOrders";
 
 export default function OrdersList() {
   const searchParams = useSearchParams();
@@ -34,7 +34,7 @@ export default function OrdersList() {
   if (isLoading) return <SkeletonOrdersList />;
 
   if (orders.length === 0) {
-    return <p className="text-gray-500 text-center py-8">No orders found.</p>;
+    return <EmptyOrders />;
   }
 
   return (
