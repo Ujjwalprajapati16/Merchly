@@ -79,6 +79,220 @@ Merchly/
 
 ---
 
+## 🏗️ System Architecture
+
+High-level overview of how the Client, Server, and Database interact.
+
+```mermaid
+graph TD
+    subgraph Client Side
+        UserBrowser[User Browser / Next.js Client]
+        AdminBrowser[Admin Browser / Next.js Admin]
+    end
+
+    subgraph Server Side
+        APIGateway[Express.js Server / API Gateway]
+        AuthService[Auth Service]
+        ProductService[Product Service]
+        OrderService[Order Service]
+    end
+
+    subgraph Database & Storage
+        MongoDB[(MongoDB Database)]
+        Cloudinary[Cloudinary Image Store]
+    end
+
+    UserBrowser -- HTTP/REST --> APIGateway
+    AdminBrowser -- HTTP/REST --> APIGateway
+    
+    APIGateway --> AuthService
+    APIGateway --> ProductService
+    APIGateway --> OrderService
+
+    AuthService -- Read/Write --> MongoDB
+    ProductService -- Read/Write --> MongoDB
+    OrderService -- Read/Write --> MongoDB
+
+    ProductService -- Upload/Fetch --> Cloudinary
+```
+
+---
+
+## 🗄️ Database Schema (ERD)
+
+Visual representation of the MongoDB data models and their relationships.
+
+```mermaid
+erDiagram
+    %% User Relationships
+    USER ||--o{ ADDRESS : "manages"
+    USER ||--|| CART : "owns active"
+    USER ||--|| WISHLIST : "owns"
+    USER ||--o{ ORDER : "places"
+
+    %% Cart Relationships
+    CART ||--o{ CART_ITEM : "contains"
+    CART_ITEM }o--|| PRODUCT : "references"
+
+    %% Wishlist Relationships
+    WISHLIST ||--o{ WISHLIST_ITEM : "contains"
+    WISHLIST_ITEM }o--|| PRODUCT : "references"
+
+    %% Order Relationships
+    ORDER ||--o{ ORDER_PRODUCT : "contains"
+    ORDER_PRODUCT }o--|| PRODUCT : "references (historical)"
+
+    %% Product Relationships
+    PRODUCT ||--o{ VARIANT : "has variants"
+
+    USER {
+        ObjectId _id PK
+        string name
+        string email
+        string password
+        string role "customer, admin"
+        date createdAt
+        date updatedAt
+    }
+
+    ADDRESS {
+        ObjectId _id PK
+        ObjectId userId FK
+        string addressLine1
+        string addressLine2
+        string city
+        string state
+        string country
+        string pincode
+        boolean isPreferred
+    }
+
+    PRODUCT {
+        ObjectId _id PK
+        string name
+        number price
+        string slug
+        string description
+        string category
+        string status "available, unavailable"
+        date createdAt
+        date updatedAt
+    }
+
+    VARIANT {
+        string color
+        string size
+        string image
+    }
+
+    CART {
+        ObjectId _id PK
+        ObjectId userId FK
+        number total
+        date createdAt
+        date updatedAt
+    }
+
+    CART_ITEM {
+        ObjectId productId FK
+        int quantity
+        number subtotal
+        object variant
+    }
+
+    WISHLIST {
+        ObjectId _id PK
+        ObjectId userId FK
+        date createdAt
+        date updatedAt
+    }
+
+    WISHLIST_ITEM {
+        ObjectId productId FK
+        date addedAt
+    }
+
+    ORDER {
+        ObjectId _id PK
+        ObjectId userId FK
+        string orderId
+        string status "received, shipped, etc"
+        string payment_status "pending, success, failed"
+        string paymentId
+        object address "Snapshot of Address"
+        number total
+        date createdAt
+        date updatedAt
+    }
+
+    ORDER_PRODUCT {
+        ObjectId productId FK
+        int quantity
+        number price
+        number subtotal
+        string color
+        string size
+        string image
+    }
+```
+---
+
+## 🔄 Application Workflows
+
+### Authentication Flow
+
+How users register and log in to the system securely.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Client as Next.js Client
+    participant Server as Express Server
+    participant DB as MongoDB
+
+    User->>Client: Enters Credentials (Login)
+    Client->>Server: POST /api/v1/auth/login
+    Server->>DB: Find User by Email
+    DB-->>Server: User Document
+    Server->>Server: Validate Password (bcrypt)
+    Server->>Server: Generate JWT Token
+    Server-->>Client: Return Token & User Info
+    Client->>Client: Store Token (LocalStorage)
+```
+
+### Checkout Process
+
+The sequence of events from cart review to order placement.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Client
+    participant Server
+    participant DB
+
+    User->>Client: Click "Checkout"
+    Client->>Server: POST /api/v1/cart/checkout
+    
+    activate Server
+    Server->>Server: Verify User Auth
+    Server->>DB: Get User Cart & Address
+    DB-->>Server: Cart Items & Address
+    
+    alt Cart Empty or No Address
+        Server-->>Client: Error (400)
+    else Valid
+        Server->>Server: Calculate Totals
+        Server->>DB: Create Order Document
+        Server->>DB: Clear User Cart
+        Server-->>Client: Success (Order Created)
+    end
+    deactivate Server
+    
+    Client->>User: Show Order Confirmation
+```
+---
+
 ## 🏁 Getting Started
 
 Follow these steps to set up the project locally.
