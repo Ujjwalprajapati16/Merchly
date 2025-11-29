@@ -1,8 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { CancelOrderButton } from "./CancelOrderButton";
 
 export default function OrderDetailsSection({ order }: any) {
   const totalAmount = order.products.reduce(
@@ -11,17 +11,17 @@ export default function OrderDetailsSection({ order }: any) {
   );
 
   return (
-    <div className="space-y-8">
-      
-      {/* ✅ Header */}
+    <div className="space-y-8 text-gray-900 dark:text-gray-100">
+
+      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">Order #{order.orderId}</h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           Ordered on {new Date(order.createdAt).toLocaleDateString()}
         </p>
       </div>
 
-      {/* ✅ Multiple Products */}
+      {/* Items */}
       <div className="space-y-3">
         <h2 className="text-lg font-semibold">Items in this order</h2>
 
@@ -29,7 +29,7 @@ export default function OrderDetailsSection({ order }: any) {
           {order.products.map((item: any) => (
             <div
               key={item._id}
-              className="flex gap-4 p-3 rounded-lg border hover:shadow-sm transition"
+              className="flex gap-4 p-3 rounded-lg border dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:shadow-sm transition"
             >
               <Image
                 src={item.image}
@@ -44,14 +44,14 @@ export default function OrderDetailsSection({ order }: any) {
                   <p className="font-medium">
                     {item.productId?.name || "Deleted Product"}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Qty: {item.quantity} • {item.color} • {item.size}
                   </p>
                 </div>
 
                 <p className="font-semibold">
                   ₹{item.subtotal}{" "}
-                  <span className="text-gray-500 text-sm">
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">
                     (₹{item.price} each)
                   </span>
                 </p>
@@ -61,37 +61,45 @@ export default function OrderDetailsSection({ order }: any) {
         </div>
       </div>
 
-      {/* ✅ Payment */}
+      {/* Payment */}
       <div className="space-y-2">
         <h2 className="text-lg font-semibold">Payment</h2>
 
         {order.payment_status === "pending" ? (
-          <Button className="w-full bg-blue-600 hover:bg-blue-700">
+          <button className="w-full py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white">
             Pay Online
-          </Button>
+          </button>
         ) : (
-          <Badge variant="outline" className="p-2 text-md">
+          <Badge
+            variant="outline"
+            className="p-2 text-md dark:border-neutral-700 dark:text-gray-300"
+          >
             Cash on Delivery
           </Badge>
         )}
       </div>
 
-      {/* ✅ Summary */}
+      {/* Summary */}
       <div className="space-y-1">
         <h2 className="text-lg font-semibold">Order Summary</h2>
-        <p className="text-gray-700">Items: {order.products.length}</p>
-        <p className="text-gray-700 font-medium">Total: ₹{totalAmount}</p>
+        <p className="text-gray-700 dark:text-gray-300">
+          Items: {order.products.length}
+        </p>
+        <p className="font-medium">Total: ₹{totalAmount}</p>
       </div>
 
-      {/* ✅ Address */}
+      {/* Address */}
       <div className="space-y-1">
         <h2 className="text-lg font-semibold">Delivery Address</h2>
-        <p className="text-gray-700">
+        <p className="text-gray-700 dark:text-gray-300">
           {order.address.addressLine1}, {order.address.addressLine2},{" "}
           {order.address.city}, {order.address.state}, {order.address.country},{" "}
           {order.address.pincode}
         </p>
       </div>
+
+      {/* Cancel Button */}
+      <CancelOrderButton orderId={order._id} status={order.status} />
     </div>
   );
 }
