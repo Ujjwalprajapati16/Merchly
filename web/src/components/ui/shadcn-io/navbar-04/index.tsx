@@ -139,7 +139,7 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
                     ? [
                         { href: "/products", label: "Products" },
                         { href: "/categories", label: "Categories" },
-                        { href: "/admin/dashboard", label: "Dashboard" },
+                        { href: "/admin/", label: "Dashboard" },
                         { href: "/admin/inventory", label: "Inventory" },
                       ]
                     : [

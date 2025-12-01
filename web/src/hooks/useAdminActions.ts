@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addProduct, updateProduct, deleteProduct } from "@/services/product-service";
 import { toast } from "sonner"; 
 import { deleteUser, getAllUsers } from "@/services/user-service";
+import { getOrdersForAdmin, updateOrderStatus } from "@/services/order-service";
 
 export const useAddProduct = () => {
   const queryClient = useQueryClient();
@@ -57,6 +58,32 @@ export const useDeleteUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("User deleted successfully!");
+    },
+  });
+};
+
+// Get All Orders
+export const useAdminOrders = (page = 1, limit = 5) => {
+  return useQuery({
+    queryKey: ["admin-orders", page, limit],
+    queryFn: () => getOrdersForAdmin({ page, limit }),
+    placeholderData: (previousData) => previousData, 
+  });
+};
+
+// update order status
+export const useUpdateOrderStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
+      updateOrderStatus(orderId, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order"] }); 
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to update status");
     },
   });
 };

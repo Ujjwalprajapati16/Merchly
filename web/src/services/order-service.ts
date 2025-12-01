@@ -25,3 +25,13 @@ export const getUserOrders = async ({ page = 1, limit = 5 }) => {
   const res = await api.get(`/order?page=${page}&limit=${limit}`);
   return res.data;
 };
+
+export const getOrdersForAdmin = async ({ page = 1, limit = 5 }) => {
+  const res = await api.get(`/order/admin/all?page=${page}&limit=${limit}`);
+  return res.data;
+};
+
+export const updateOrderStatus = async (orderId: string, status: string) => {
+  const res = await api.patch(`/order/${orderId}/status`, { status });
+  return res.data;
+};
