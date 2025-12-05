@@ -27,4 +27,10 @@ const productSchema = new mongoose.Schema<Product>(
   { timestamps: true }
 );
 
+productSchema.index({ 
+  name: "text", 
+  description: "text", 
+  "variants.color": "text" 
+});
+
 export default mongoose.model<Product>("Product", productSchema);

@@ -1,6 +1,17 @@
 import cloudinary from "../config/cloudinary.js";
 import { APIError } from "../middlewares/ErrorHandler.js";
-import { createProduct, getAllProducts, getCategories, getProductBySlug, findProductsByCategory, updateProductById, findProductById, deleteProductById, getAllProductsForHomePage } from "../repositories/product-repo.js";
+import { 
+  createProduct, 
+  getAllProducts, 
+  getCategories, 
+  getProductBySlug, 
+  findProductsByCategory, 
+  updateProductById, 
+  findProductById, 
+  deleteProductById, 
+  getAllProductsForHomePage,
+  searchProductsRepo // Import the new function
+} from "../repositories/product-repo.js";
 import { isProductInWishlist } from "../repositories/wishlist-repo.js";
 import type { Product, ProductToAdd, Variant } from "../types/Product-types.js";
 
@@ -28,8 +39,33 @@ export const getProductsService = async (limit: number, page: number) => {
   return await getAllProducts(limit, skip);
 };
 
-export const getProductsForHomePageService = async (limit: number, page: number) => {
+export const getProductsForHomePageService = async (limit: number, page: number, search?: string) => {
   const skip = (page - 1) * limit;
+
+  // If search query exists, use search repo
+  if (search) {
+    const { products, total } = await searchProductsRepo(search, limit, skip);
+
+    // Format to match HomePageProduct type
+    const formatted = products.map((p: any) => ({
+      _id: p._id,
+      name: p.name,
+      price: p.price,
+      slug: p.slug,
+      image: p.variants?.[0]?.image || null,
+      variant: p.variants?.[0] || null,
+      status: p.status,
+      createdAt: p.createdAt
+    }));
+
+    return {
+      products: formatted,
+      totalProducts: total,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
+
+  // Fallback to normal behavior
   return await getAllProductsForHomePage(limit, skip);
 };
 

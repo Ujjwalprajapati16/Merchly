@@ -63,8 +63,10 @@ export const getProductsForHomePage = async (req: Request, res: Response, next: 
   try {
     const limit = parseInt(req.query.limit as string) || 6;
     const page = parseInt(req.query.page as string) || 1;
+    const search = req.query.search as string | undefined; // Get search term
 
-    const products = await getProductsForHomePageService(limit, page);
+    // Pass search to service
+    const products = await getProductsForHomePageService(limit, page, search);
 
     res.status(200).json({
       message: "Products fetched successfully",

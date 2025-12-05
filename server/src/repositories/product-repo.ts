@@ -88,3 +88,28 @@ export const findProductById = async (productId: string) => {
 export const deleteProductById = async (productId: string) => {
   return await productModel.findByIdAndDelete(productId);
 };
+
+export const searchProductsRepo = async (query: string, limit: number, skip: number) => {
+  const searchRegex = new RegExp(query, "i");
+
+  const searchCriteria = {
+    status: "available",
+    $or: [
+      { name: { $regex: searchRegex } },
+      { description: { $regex: searchRegex } },
+      { "variants.color": { $regex: searchRegex } } 
+    ]
+  };
+
+  const [products, total] = await Promise.all([
+    productModel
+      .find(searchCriteria)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    productModel.countDocuments(searchCriteria)
+  ]);
+
+  return { products, total };
+};

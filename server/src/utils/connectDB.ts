@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import config from "../config/config.js";
+// import productModel from "../models/product-model.js";
 
 export const connectDB = async (): Promise<typeof mongoose> => {
   try {
@@ -18,6 +19,10 @@ export const connectDB = async (): Promise<typeof mongoose> => {
     // Connect with recommended options
     await mongoose.connect(uri);
     console.log("✅ Connected to MongoDB successfully");
+
+    // for creating the index of product
+    // await productModel.syncIndexes();
+    // console.log("⚡ Product Indexes Synced");
 
     mongoose.connection.on("disconnected", () => {
       console.warn("⚠️ MongoDB disconnected. Retrying...");
