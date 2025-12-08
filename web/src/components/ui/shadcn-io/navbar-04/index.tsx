@@ -4,39 +4,22 @@ import * as React from "react";
 import { useEffect, useState, useRef } from "react";
 import { SearchIcon, Sun, Moon } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/providers/AuthProvider";
 import SearchBar from "@/components/SearchBar";
+import MobileSearch from "@/components/MobileSearch";
 
 const HamburgerIcon = ({ className }: { className?: string }) => (
   <svg
     className={cn("pointer-events-none", className)}
-    width={20}
-    height={20}
+    width={22}
+    height={22}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -62,25 +45,19 @@ export interface Navbar04Props extends React.HTMLAttributes<HTMLElement> {
 
 export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
   ({ className, navigationLinks, cartCount = 2, ...props }, ref) => {
-    // IMPORTANT: maintain same initial render between server and client:
-    // mounted === false => render a neutral shell that won't mismatch during hydration.
     const [mounted, setMounted] = useState(false);
-
     const [isMobile, setIsMobile] = useState(false);
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
     const containerRef = useRef<HTMLElement>(null);
-    // Use a client-only generated search id to avoid useId mismatch
-    const [searchId, setSearchId] = useState<string | null>(null);
     const { theme, setTheme } = useTheme();
     const { user, logout } = useAuth();
 
-    // generate stable id and mark mounted on client
     useEffect(() => {
       setMounted(true);
-      setSearchId(`search-${Math.random().toString(36).slice(2, 9)}`);
     }, []);
 
     useEffect(() => {
-      // only run resize listener on client
       const handleResize = () => setIsMobile(window.innerWidth < 768);
       handleResize();
       window.addEventListener("resize", handleResize);
@@ -96,17 +73,6 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
       [ref]
     );
 
-    // const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    //   e.preventDefault();
-    //   const formData = new FormData(e.currentTarget);
-    //   const query = formData.get("search") as string;
-    //   // keep behaviour same after hydration
-    //   if (mounted) {
-    //     // do client-side navigation/search logic here
-    //     console.log("Search query:", query);
-    //   }
-    // };
-
     const getInitials = (name: string | undefined, email: string) => {
       if (name) {
         const parts = name.trim().split(" ");
@@ -116,198 +82,218 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
       return email.slice(0, 2).toUpperCase();
     };
 
-    // Provide a neutral server-like UI before mounted to avoid markup differences.
-    // Many dynamic bits (theme icon, user dropdown contents) will only appear after mount.
     return (
-      <header
-        ref={combinedRef}
-        className={cn(
-          "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-          className
-        )}
-        {...props}
-      >
-        <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
-          {/* Logo - safe to render immediately */}
-          <Logo />
+      <>
+        <header
+          ref={combinedRef}
+          className={cn(
+            "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+            className
+          )}
+          {...props}
+        >
+          <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4 gap-5">
 
-          {/* Desktop Nav - safe to render (links are static) */}
-          {!isMobile && (
-            <NavigationMenu>
-              <NavigationMenuList className="flex gap-6">
-                {(navigationLinks ||
-                  (user?.role === "admin"
-                    ? [
+            {/* ------------------ LOGO ------------------ */}
+            <Logo />
+
+            {/* ------------------ DESKTOP NAV ------------------ */}
+            {!isMobile && (
+              <NavigationMenu>
+                <NavigationMenuList className="flex gap-6">
+                  {(navigationLinks ||
+                    (user?.role === "admin"
+                      ? [
                         { href: "/products", label: "Products" },
                         { href: "/categories", label: "Categories" },
                         { href: "/admin/", label: "Dashboard" },
                         { href: "/admin/inventory", label: "Inventory" },
                       ]
-                    : [
+                      : [
                         { href: "/products", label: "Products" },
                         { href: "/categories", label: "Categories" },
                         { href: "/orders", label: "Orders" },
                         { href: "/wishlist", label: "Wishlist" },
-                      ]))!.map((link, index) => (
-                  <NavigationMenuItem key={index}>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href={link.href}
-                        className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      ])
+                  ).map((link, i) => (
+                    <NavigationMenuItem key={i}>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href={link.href}
+                          className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {link.label}
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
+            )}
+
+            {/* ------------------ DESKTOP SEARCH ------------------ */}
+            <div className="hidden md:flex w-full max-w-sm mx-auto">
+              <SearchBar />
+            </div>
+
+            {/* ------------------ RIGHT ACTIONS ------------------ */}
+            <div className="flex items-center gap-2">
+
+              {/* ---------- MOBILE SEARCH ICON ---------- */}
+              {isMobile && (
+                <Button
+                  onClick={() => setMobileSearchOpen(true)}
+                  className="md:hidden p-2 rounded-full bg-transparent text-muted-foreground hover:text-foreground"
+                >
+                  <SearchIcon size={22} />
+                </Button>
+              )}
+
+              {/* ---------- USER DROPDOWN ---------- */}
+              {mounted ? (
+                user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full h-9 w-9 font-semibold"
                       >
-                        {link.label}
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
-          )}
-
-          {/* Search bar */}
-          <SearchBar />
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-2">
-            {/* User area - render initial shell same on server and client, then hydrate interactive dropdown */}
-            {mounted ? (
-              user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="rounded-full h-9 w-9 font-semibold"
-                    >
-                      {getInitials(user.name, user.email)}
+                        {getInitials(user.name, user.email)}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuLabel>{user.name || user.email}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile">Profile</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={logout}
+                        className="text-red-600 cursor-pointer"
+                      >
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm" className="hidden md:flex">
+                      Sign In
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuLabel>{user.name || user.email}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile">Profile</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={logout}
-                      className="text-red-600 cursor-pointer"
-                    >
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </Link>
+                )
               ) : (
-                <Link href="/login">
-                  <Button variant="ghost" size="sm">
-                    Sign In
+                <div className="h-9 w-9" aria-hidden />
+              )}
+
+              {/* ---------- CART BUTTON ---------- */}
+              {mounted && user?.role !== "admin" && (
+                <Link href="/cart">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="relative flex items-center justify-center"
+                  >
+                    🛒
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 rounded-full bg-primary text-white text-xs w-5 h-5 flex items-center justify-center">
+                        {cartCount}
+                      </span>
+                    )}
                   </Button>
                 </Link>
-              )
-            ) : (
-              // Neutral placeholder to keep server/client markup identical
-              <div className="h-9" aria-hidden />
-            )}
+              )}
 
-            {/* Cart - only render after mounted (so server markup is identical) */}
-            {mounted && user?.role !== "admin" && (
-              <Link href="/cart">
-                <Button size="sm" className="relative">
-                  Cart
-                  {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 rounded-full bg-primary text-white text-xs w-5 h-5 flex items-center justify-center">
-                      {cartCount}
-                    </span>
-                  )}
+              {/* ---------- THEME SWITCH (DESKTOP ONLY) ---------- */}
+              {mounted && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                  className="hidden md:flex"
+                >
+                  {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
                 </Button>
-              </Link>
-            )}
+              )}
 
-            {/* Theme Switch - only show after mounted to avoid mismatch */}
-            {mounted ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              >
-                {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
-              </Button>
-            ) : (
-              // neutral placeholder
-              <div className="w-9 h-9" aria-hidden />
-            )}
+              {/* ---------- MOBILE MENU ---------- */}
+              {isMobile && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="p-2">
+                      <HamburgerIcon />
+                    </Button>
+                  </PopoverTrigger>
 
-            {/* Mobile Menu */}
-            {isMobile && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <HamburgerIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-48 p-2">
-                  <nav className="flex flex-col gap-2">
-                    {(navigationLinks ||
-                      (user?.role === "admin"
+                  <PopoverContent align="end" className="w-48 p-2">
+                    <nav className="flex flex-col gap-2">
+                      {(user?.role === "admin"
                         ? [
-                            { href: "/products", label: "Products" },
-                            { href: "/categories", label: "Categories" },
-                            { href: "/admin", label: "Dashboard" },
-                            { href: "/admin/inventory", label: "Inventory" },
-                          ]
+                          { href: "/products", label: "Products" },
+                          { href: "/categories", label: "Categories" },
+                          { href: "/admin", label: "Dashboard" },
+                          { href: "/admin/inventory", label: "Inventory" },
+                        ]
                         : [
-                            { href: "/products", label: "Products" },
-                            { href: "/categories", label: "Categories" },
-                            { href: "/orders", label: "Orders" },
-                            { href: "/wishlist", label: "Wishlist" },
-                          ]))!.map((link, index) => (
-                      <Link
-                        key={index}
-                        href={link.href}
-                        className="text-sm font-medium hover:text-primary transition"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
-
-                    {!mounted && (
-                      // placeholders to keep layout same initially
-                      <div className="h-2" />
-                    )}
-
-                    {mounted && !user && (
-                      <Link href="/login" className="text-sm font-medium hover:text-primary transition">
-                        <Button variant="ghost" size="sm">
-                          Sign In
-                        </Button>
-                      </Link>
-                    )}
-
-                    {mounted && user && (
-                      <>
-                        <Link href="/profile" className="text-sm font-medium hover:text-primary transition">
-                          Profile
-                        </Link>
-                        <Button
-                          onClick={logout}
-                          className="text-sm text-left font-medium text-red-600 hover:text-red-700 transition"
+                          { href: "/products", label: "Products" },
+                          { href: "/categories", label: "Categories" },
+                          { href: "/orders", label: "Orders" },
+                          { href: "/wishlist", label: "Wishlist" },
+                        ]
+                      ).map((link, i) => (
+                        <Link
+                          key={i}
+                          href={link.href}
+                          className="text-sm font-medium hover:text-primary transition"
                         >
-                          Logout
-                        </Button>
-                      </>
-                    )}
+                          {link.label}
+                        </Link>
+                      ))}
 
-                    {mounted && user?.role !== "admin" && (
-                      <Link href="/cart" className="text-sm font-medium hover:text-primary transition">
-                        Cart ({cartCount})
-                      </Link>
-                    )}
-                  </nav>
-                </PopoverContent>
-              </Popover>
-            )}
+                      {/* ---------- MOBILE THEME TOGGLE ---------- */}
+                      <button
+                        className="flex items-center justify-between text-sm font-medium mt-2 p-2 rounded-md hover:bg-muted transition"
+                        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                      >
+                        <span>Theme</span>
+                        {theme === "light" ? (
+                          <Moon size={18} className="text-muted-foreground" />
+                        ) : (
+                          <Sun size={18} className="text-muted-foreground" />
+                        )}
+                      </button>
+
+                      {/* ---------- AUTH ---------- */}
+                      {!user && (
+                        <Link href="/login">
+                          <Button variant="ghost" size="sm" className="w-full mt-2">
+                            Sign In
+                          </Button>
+                        </Link>
+                      )}
+
+                      {user && (
+                          <button
+                            onClick={logout}
+                            className="text-sm font-medium text-red-600 hover:text-red-700 transition"
+                          >
+                            Logout
+                          </button>
+                      )}
+                    </nav>
+                  </PopoverContent>
+                </Popover>
+              )}
+
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+        <MobileSearch
+          open={mobileSearchOpen}
+          onClose={() => setMobileSearchOpen(false)}
+        />
+      </>
     );
   }
 );
