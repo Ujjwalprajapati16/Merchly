@@ -82,3 +82,14 @@ export const deleteProduct = async (id: string) => {
 
   return res.data;
 };
+
+export const serachProduct = async (search: string) => {
+  const res = await api.get(`/product/products`, {
+    params: {
+      search,
+      page: 1,
+      limit: 5
+    },
+  });
+  return res.data;
+}

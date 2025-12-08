@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getProducts, getProductById, getProductsByCategory, getCategories, getProductsForHomePage } from "@/services/product-service";
+import { getProducts, getProductById, getProductsByCategory, getCategories, getProductsForHomePage, serachProduct } from "@/services/product-service";
 import { categories, ProductResponse } from "@/types/productTypes";
 
 export const useProducts = (page = 1, limit = 6) => {
@@ -40,3 +40,12 @@ export const useProductCategories = () => {
     queryFn: () => getCategories(),
   });
 };
+
+export const useSearchProducts = (search: string) => {
+  return useQuery({
+    queryKey: ["home-products", search],
+    queryFn: () => serachProduct(search),
+    staleTime: 1000 * 60,
+    enabled: true,
+  });
+}

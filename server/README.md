@@ -482,6 +482,7 @@ Retrieve all products with pagination support.
 **Query Parameters:**
 - `limit` (optional): Number of products per page (default: 6)
 - `page` (optional): Page number (default: 1)
+- `search` (optional): Search term to filter products by name
 
 **Example Request:**
 ```
@@ -1629,10 +1630,10 @@ Content-Type: application/json
 }
 ```
 
-### Remove from Wishlist
+### Remove from Wishlist (by Item ID)
 **DELETE** `/api/v1/wishlist/remove/:itemId`
 
-Remove a product from the user's wishlist.
+Remove a specific item from the wishlist using its unique item ID.
 
 **Headers:**
 ```

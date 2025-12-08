@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/providers/AuthProvider";
+import SearchBar from "@/components/SearchBar";
 
 const HamburgerIcon = ({ className }: { className?: string }) => (
   <svg
@@ -95,16 +96,16 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
       [ref]
     );
 
-    const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const query = formData.get("search") as string;
-      // keep behaviour same after hydration
-      if (mounted) {
-        // do client-side navigation/search logic here
-        console.log("Search query:", query);
-      }
-    };
+    // const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    //   e.preventDefault();
+    //   const formData = new FormData(e.currentTarget);
+    //   const query = formData.get("search") as string;
+    //   // keep behaviour same after hydration
+    //   if (mounted) {
+    //     // do client-side navigation/search logic here
+    //     console.log("Search query:", query);
+    //   }
+    // };
 
     const getInitials = (name: string | undefined, email: string) => {
       if (name) {
@@ -163,19 +164,8 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
             </NavigationMenu>
           )}
 
-          {/* Search: render the form, but input id is only available after mount */}
-          <form onSubmit={handleSearchSubmit} className="relative hidden md:block">
-            <Input
-              id={searchId || "search"}
-              name="search"
-              className="h-9 ps-8 pe-2 w-56"
-              placeholder="Search..."
-              type="search"
-            />
-            <div className="absolute inset-y-0 start-0 flex items-center ps-2 text-muted-foreground">
-              <SearchIcon size={16} />
-            </div>
-          </form>
+          {/* Search bar */}
+          <SearchBar />
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
@@ -261,7 +251,7 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
                         ? [
                             { href: "/products", label: "Products" },
                             { href: "/categories", label: "Categories" },
-                            { href: "/admin/dashboard", label: "Dashboard" },
+                            { href: "/admin", label: "Dashboard" },
                             { href: "/admin/inventory", label: "Inventory" },
                           ]
                         : [
